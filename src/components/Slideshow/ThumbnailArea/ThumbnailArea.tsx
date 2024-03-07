@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import styled from "styled-components";
-import Thumbnail from "./Thumbnail";
+import Thumbnail from "../Thumbnail";
 
 type Props = {
   className?: string;

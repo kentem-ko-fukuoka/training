@@ -1,8 +1,8 @@
 import { useState } from "react";
-import ButtonsArea from "./ButtonsArea";
-import Slide from "./Slide";
-import ThumbnailsArea from "./ThumbnailsArea";
 import styled, { createGlobalStyle } from "styled-components";
+import ButtonsArea from "./ButtonArea";
+import Slide from "./Slide";
+import ThumbnailsArea from "./ThumbnailArea";
 
 const SLIDE_IMAGE_SOURCES = [
   '../img/pic0.png', 
