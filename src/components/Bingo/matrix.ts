@@ -1,33 +1,32 @@
-
 const BASE_NUMBER = 15;
 const ONE_SIDE_SIZE = 5;
 const FREE_STRING = 'FREE';
 
-const getCandidates = (loopIndex: number) => {
+const getSelections = (loopIndex: number) => {
 
-  const candidates: string[] = [];
+  const selections: string[] = [];
 
   for (let i = 1; i <= BASE_NUMBER; i++) {
-    candidates.push(String(i + loopIndex * BASE_NUMBER));
+    selections.push((i + loopIndex * BASE_NUMBER).toString());
   }
 
-  return candidates;
+  return selections;
 }
 
 const transpose = (matrix: string[][]): string[][] => {
 
   const transposed: string[][] = [];
 
-  for (let i = 0; i < matrix.length; i++) {
+  matrix.forEach((row) => {
 
     const column: string[] = [];
 
-    for (let j = 0; j < matrix[i].length; j++) {
-      column.push(matrix[j][i]);
-    }
+    row.forEach((element) => {
+      column.push(element);
+    })
 
     transposed.push(column);
-  }
+  });
 
   return transposed;
 }
@@ -39,11 +38,11 @@ export const createMatrix = (): string[][] => {
   for (let i = 0; i < ONE_SIDE_SIZE; i++) {
 
     const row: string[] = [];
-    const candidates = getCandidates(i);
+    const selections = getSelections(i);
 
     for (let j = 0; j < ONE_SIDE_SIZE; j++) {
-      const index = Math.floor(Math.random() * candidates.length);
-      row.push(candidates.splice(index, 1)[0]);
+      const index = Math.floor(Math.random() * selections.length);
+      row.push(selections.splice(index, 1)[0]);
     }
 
     matrix.push(row);

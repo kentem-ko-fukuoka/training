@@ -11,7 +11,7 @@ const BingoBody = () => {
         {row.map((element, index) => {
           return (
             <StyledTd key={index}>{element}</StyledTd>
-          ); 
+          );
         })}
       </tr>
     );
