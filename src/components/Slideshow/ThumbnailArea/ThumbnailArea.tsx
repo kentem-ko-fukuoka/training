@@ -18,7 +18,7 @@ const ThumbnailsArea = ({
 
   const thumbnails = slideImageSources.map((src, index) => {
 
-    const handleClick = () => {
+    const changeSlide = () => {
       setCurrentSlideIndex(index);
     }
 
@@ -26,7 +26,7 @@ const ThumbnailsArea = ({
       <Thumbnail
         key={src}
         src={src}
-        onClick={handleClick}
+        onClick={changeSlide}
         isShown={index === currentSlideIndex}
       />
     );
