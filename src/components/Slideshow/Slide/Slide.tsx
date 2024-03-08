@@ -9,6 +9,7 @@ const Slide = ({ src }: Props) => {
     <StyledImg
       src={src}
       width={240}
+      alt='スライドに表示される画像'
     />
   );
 }

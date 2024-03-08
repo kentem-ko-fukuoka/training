@@ -17,6 +17,7 @@ const Thumbnail = ({
       src={src}
       width={76}
       onClick={onClick}
+      alt='サムネイルの画像'
       $isShown={isShown}
     />
   );

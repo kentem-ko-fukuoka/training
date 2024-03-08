@@ -13,8 +13,8 @@ const ButtonsArea = ({
 
   return (
     <StyledDiv>
-      <Button text='&larr;' onClick={onClickLeft} />
-      <Button text='&rarr;' onClick={onClickRight} />
+      <Button text='←' onClick={onClickLeft} />
+      <Button text='→' onClick={onClickRight} />
     </StyledDiv>
   );
 }
