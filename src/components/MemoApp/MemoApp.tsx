@@ -1,24 +1,23 @@
 import styled, { createGlobalStyle } from "styled-components";
 import Footer from "./Footer";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, ChangeEventHandler, useState } from "react";
 
 const MILLISECONDS_PER_SECOND = 1000;
 
-const IS_DISPLAY_SAVED_MESSAGE_INITIAL = false;
 const MEMO_TEXT_INITIAL = '';
 
 const KEY_MEMO_TEXT = 'memo';
 
 const MemoApp = () => {
 
-  const [isDisplaySavedMessage, setIsDisplaySavedMessage] = useState(
-    IS_DISPLAY_SAVED_MESSAGE_INITIAL);
+  const [isDisplaySavedMessage, setIsDisplaySavedMessage] = useState(false);
 
   const [memoText, setMemoText] = useState(MEMO_TEXT_INITIAL);
 
-  const handleChangeMemoText = (e: ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChangeMemoText: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setMemoText(e.target.value);
   }
+  
 
   const onDelete = () => {
 
@@ -32,10 +31,6 @@ const MemoApp = () => {
 
   const onSave = () => {
 
-    if (!memoText) {
-      return;
-    }
-
     setIsDisplaySavedMessage(true);
 
     setTimeout(() => {
@@ -48,8 +43,8 @@ const MemoApp = () => {
   const onRestore = () => {
     
     const storedMemoText = localStorage.getItem(KEY_MEMO_TEXT);
-    
-    if (!storedMemoText) {
+
+    if (storedMemoText === null) {
       return;
     }
 
