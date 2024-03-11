@@ -30,7 +30,7 @@ const Header = ({ date, onClickLeft, onClickRight }: Props) => {
       </tr>
       <tr>
         {MONTH_STRINGS.map((monthString) => {
-          return <th>{monthString}</th>
+          return <th key={monthString}>{monthString}</th>
         })}
       </tr>
     </thead>

@@ -15,20 +15,18 @@ const Calendar = () => {
       return;
     }
 
-    if (operation === 'prev') {
-      setDate((month) => {
-        const prev = new Date(month);
-        prev.setMonth(prev.getMonth() - 1);
-        return prev;
-      });
-      return;
-    }
-
     setDate((month) => {
-      const next = new Date(month);
-      next.setMonth(next.getMonth() + 1);
-      return next;
-    })
+
+      const jumpMonth = new Date(month);
+
+      if (operation === 'prev') {
+        jumpMonth.setMonth(jumpMonth.getMonth() - 1);
+        return jumpMonth;
+      }
+
+      jumpMonth.setMonth(jumpMonth.getMonth() + 1);
+      return jumpMonth;
+    });
   }
 
   return (
