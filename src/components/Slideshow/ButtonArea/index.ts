@@ -1,1 +1,1 @@
-export { default } from './ButtonArea';
+export { default } from "./ButtonArea";
