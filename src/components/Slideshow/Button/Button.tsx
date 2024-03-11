@@ -4,18 +4,15 @@ type Props = {
   className?: string;
   text: string;
   onClick: () => void;
-}
+};
 
 const Button = ({ className, text, onClick }: Props) => {
   return (
-    <StyledButton
-      className={className}
-      onClick={onClick}
-    >
+    <StyledButton className={className} onClick={onClick}>
       {text}
     </StyledButton>
   );
-}
+};
 
 export default Button;
 

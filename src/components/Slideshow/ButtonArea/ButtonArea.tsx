@@ -4,20 +4,16 @@ import Button from "../Button";
 type Props = {
   onClickLeft: () => void;
   onClickRight: () => void;
-}
+};
 
-const ButtonsArea = ({
-  onClickLeft,
-  onClickRight
-}: Props) => {
-
+const ButtonsArea = ({ onClickLeft, onClickRight }: Props) => {
   return (
     <StyledDiv>
-      <Button text='&larr;' onClick={onClickLeft} />
-      <Button text='&rarr;' onClick={onClickRight} />
+      <Button text="&larr;" onClick={onClickLeft} />
+      <Button text="&rarr;" onClick={onClickRight} />
     </StyledDiv>
   );
-}
+};
 
 export default ButtonsArea;
 
