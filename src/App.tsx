@@ -7,13 +7,11 @@ const APP_BINGO = 'bingo';
 const APP_SLIDESHOW = 'slideshow';
 
 const App = () => {
-
   const [currentApp, setCurrentApp] = useState(APP_NULL);
 
   const app = (() => {
-
     switch (currentApp) {
-
+        
       case APP_BINGO:
         return <Bingo />;
 
@@ -34,6 +32,6 @@ const App = () => {
       {app}
     </>
   );
-}
+};
 
 export default App;
