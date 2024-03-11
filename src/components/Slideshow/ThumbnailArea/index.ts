@@ -1,1 +1,1 @@
-export { default } from './ThumbnailArea';
+export { default } from "./ThumbnailArea";
