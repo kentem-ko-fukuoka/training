@@ -1,9 +1,8 @@
 import { useState } from "react";
-import Slideshow from "./components/Slideshow";
+import Bingo from "./components/Bingo";
 import Calendar from "./components/Calendar";
 import MemoApp from "./components/MemoApp";
-import Bingo from "./components/Bingo";
-
+import Slideshow from "./components/Slideshow";
 
 const APP_NULL = '';
 const APP_SLIDESHOW = 'slideshow';
@@ -12,10 +11,11 @@ const APP_BINGO = 'bingo';
 const APP_CALENDAR = 'calendar';
 
 const App = () => {
-  
+
   const [currentApp, setCurrentApp] = useState(APP_NULL);
 
   const app = (() => {
+
     switch (currentApp) {
 
       case APP_SLIDESHOW:
@@ -23,9 +23,10 @@ const App = () => {
 
       case APP_MEMO_APP:
         return <MemoApp />;
-        
+
       case APP_BINGO:
         return <Bingo />;
+
       case APP_CALENDAR:
         return <Calendar />;
 
