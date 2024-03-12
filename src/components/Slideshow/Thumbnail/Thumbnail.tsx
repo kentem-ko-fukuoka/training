@@ -8,7 +8,13 @@ type Props = {
 
 const Thumbnail = ({ src, isShown, onClick }: Props) => {
   return (
-    <StyledImg src={src} width={76} onClick={onClick} $isShown={isShown} />
+    <StyledImg
+      src={src}
+      width={76}
+      onClick={onClick}
+      alt='サムネイルの画像'
+      $isShown={isShown}
+    />
   );
 };
 
