@@ -3,12 +3,14 @@ import Bingo from "./components/Bingo";
 import Calendar from "./components/Calendar";
 import MemoApp from "./components/MemoApp";
 import Slideshow from "./components/Slideshow";
+import NumbersGame from "./components/NumbersGame";
 
 const APP_NULL = '';
 const APP_SLIDESHOW = 'slideshow';
 const APP_MEMO_APP = 'memo-app';
 const APP_BINGO = 'bingo';
 const APP_CALENDAR = 'calendar';
+const APP_NUMBERS_GAME = 'numbers-game';
 
 const App = () => {
 
@@ -30,6 +32,9 @@ const App = () => {
       case APP_CALENDAR:
         return <Calendar />;
 
+      case APP_NUMBERS_GAME:
+        return <NumbersGame />;
+
       default:
         return null;
     }
@@ -42,6 +47,7 @@ const App = () => {
         <button onClick={() => setCurrentApp(APP_MEMO_APP)}>MemoApp</button>
         <button onClick={() => setCurrentApp(APP_BINGO)}>Bingo</button>
         <button onClick={() => setCurrentApp(APP_CALENDAR)}>Calendar</button>
+        <button onClick={() => setCurrentApp(APP_NUMBERS_GAME)}>NumbersGame</button>
       </div>
       {app}
     </>
