@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 type Props = {
   src?: string;
-}
+};
 
 const Slide = ({ src }: Props) => {
   return (

@@ -13,8 +13,8 @@ const SLIDE_IMAGE_SOURCES = [
 const SLIDE_INDEX_INITIAL = 0;
 
 const Slideshow = () => {
-
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(SLIDE_INDEX_INITIAL);
+  const [currentSlideIndex, setCurrentSlideIndex] =
+    useState(SLIDE_INDEX_INITIAL);
 
   const changeSlide = (direction: 'left' | 'right') => {
 
@@ -24,7 +24,7 @@ const Slideshow = () => {
       const increment = direction === 'left' ? -1 : 1;
       return (prev + increment + slideCount) % slideCount;
     });
-  }
+  };
 
   return (
     <>
@@ -43,7 +43,7 @@ const Slideshow = () => {
       </StyledDiv>
     </>
   );
-}
+};
 
 export default Slideshow;
 
