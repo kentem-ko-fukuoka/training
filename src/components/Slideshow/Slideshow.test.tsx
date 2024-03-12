@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from '@testing-library/user-event';
 import Slideshow from "./Slideshow";
+import Thumbnail from "./Thumbnail";
 
 const SLIDE_IMAGE_SOURCES = [
   '../img/pic0.png',
@@ -77,58 +78,43 @@ describe('左右ボタンをクリックした場合の動作', () => {
 
     render(<Slideshow />);
 
-    let slideIndex = SLIDE_INDEX_INITIAL;
-
     await user.click(screen.getByText('→'));
-    slideIndex++;
 
-    testSlideImage(slideIndex);
-    testThumbnails(slideIndex);
+    testSlideImage(1);
+    testThumbnails(1);
   });
 
   test('左ボタンを押した場合の動作', async () => {
 
     render(<Slideshow />);
 
-    let slideIndex = SLIDE_INDEX_INITIAL;
-
     await user.click(screen.getByText('→'));
-    slideIndex++;
-
     await user.click(screen.getByText('←'));
-    slideIndex--;
 
-    testSlideImage(slideIndex);
-    testThumbnails(slideIndex);
+    testSlideImage(0);
+    testThumbnails(0);
   });
 
   test('一番左の画像を表示しているときに左ボタンを押した場合の動作', async () => {
 
     render(<Slideshow />);
 
-    let slideIndex = SLIDE_INDEX_INITIAL;
-
     await user.click(screen.getByText('←'));
-    slideIndex--;
 
-    testSlideImage(slideIndex);
-    testThumbnails(slideIndex);
+    testSlideImage(2);
+    testThumbnails(2);
   });
 
   test('一番右の画像を表示しているときに左ボタンを押した場合の動作', async () => {
 
     render(<Slideshow />);
 
-    let slideIndex = SLIDE_INDEX_INITIAL;
-
     await user.click(screen.getByText('→'));
-    slideIndex++;
-
     await user.click(screen.getByText('→'));
-    slideIndex++;
+    await user.click(screen.getByText('←'));
 
-    testSlideImage(slideIndex);
-    testThumbnails(slideIndex);
+    testSlideImage(1);
+    testThumbnails(1);
   });
 });
 
@@ -136,45 +122,47 @@ describe('各サムネイルをクリックした場合の動作', () => {
 
   const user = userEvent.setup();
 
-  test('一番左のサムネイルをクリックした場合の動作', async () => {
+  test.each([
+    { index: 0 },
+    { index: 1 },
+    { index: 2 }
+  ])('$index番目のサムネイルをクリックした場合の動作', async ({ index }) => {
 
     render(<Slideshow />);
 
-    const slideIndex = 0;
-
     const thumbnails = screen.getAllByAltText('サムネイルの画像');
 
-    await user.click(thumbnails[slideIndex]);
+    await user.click(thumbnails[index]);
 
-    testSlideImage(slideIndex);
-    testThumbnails(slideIndex);
+    testSlideImage(index);
+    testThumbnails(index);
   });
 
-  test('中央のサムネイルをクリックした場合の動作', async () => {
+  // test('中央のサムネイルをクリックした場合の動作', async () => {
 
-    render(<Slideshow />);
+  //   render(<Slideshow />);
 
-    const slideIndex = 1;
+  //   const slideIndex = 1;
 
-    const thumbnails = screen.getAllByAltText('サムネイルの画像');
+  //   const thumbnails = screen.getAllByAltText('サムネイルの画像');
 
-    await user.click(thumbnails[slideIndex]);
+  //   await user.click(thumbnails[slideIndex]);
 
-    testSlideImage(slideIndex);
-    testThumbnails(slideIndex);
-  });
+  //   testSlideImage(slideIndex);
+  //   testThumbnails(slideIndex);
+  // });
 
-  test('一番右のサムネイルをクリックした場合の動作', async () => {
+  // test('一番右のサムネイルをクリックした場合の動作', async () => {
 
-    render(<Slideshow />);
+  //   render(<Slideshow />);
 
-    const slideIndex = 2;
+  //   const slideIndex = 2;
 
-    const thumbnails = screen.getAllByAltText('サムネイルの画像');
+  //   const thumbnails = screen.getAllByAltText('サムネイルの画像');
 
-    await user.click(thumbnails[slideIndex]);
+  //   await user.click(thumbnails[slideIndex]);
 
-    testSlideImage(slideIndex);
-    testThumbnails(slideIndex);
-  });
+  //   testSlideImage(slideIndex);
+  //   testThumbnails(slideIndex);
+  // });
 });
