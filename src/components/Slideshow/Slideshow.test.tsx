@@ -137,32 +137,4 @@ describe('各サムネイルをクリックした場合の動作', () => {
     testSlideImage(index);
     testThumbnails(index);
   });
-
-  // test('中央のサムネイルをクリックした場合の動作', async () => {
-
-  //   render(<Slideshow />);
-
-  //   const slideIndex = 1;
-
-  //   const thumbnails = screen.getAllByAltText('サムネイルの画像');
-
-  //   await user.click(thumbnails[slideIndex]);
-
-  //   testSlideImage(slideIndex);
-  //   testThumbnails(slideIndex);
-  // });
-
-  // test('一番右のサムネイルをクリックした場合の動作', async () => {
-
-  //   render(<Slideshow />);
-
-  //   const slideIndex = 2;
-
-  //   const thumbnails = screen.getAllByAltText('サムネイルの画像');
-
-  //   await user.click(thumbnails[slideIndex]);
-
-  //   testSlideImage(slideIndex);
-  //   testThumbnails(slideIndex);
-  // });
 });
