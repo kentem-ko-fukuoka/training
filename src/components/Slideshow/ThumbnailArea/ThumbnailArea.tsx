@@ -6,38 +6,34 @@ type Props = {
   className?: string;
   slideImageSources: readonly string[];
   currentSlideIndex: number;
-  setCurrentSlideIndex: Dispatch<SetStateAction<number>>
-}
+  setCurrentSlideIndex: Dispatch<SetStateAction<number>>;
+};
 
 const ThumbnailsArea = ({
   className,
   slideImageSources,
   currentSlideIndex,
-  setCurrentSlideIndex
+  setCurrentSlideIndex,
 }: Props) => {
-
+  
   const thumbnails = slideImageSources.map((src, index) => {
 
-    const handleClick = () => {
+    const changeSlide = () => {
       setCurrentSlideIndex(index);
-    }
+    };
 
     return (
       <Thumbnail
         key={src}
         src={src}
-        onClick={handleClick}
+        onClick={changeSlide}
         isShown={index === currentSlideIndex}
       />
     );
   });
 
-  return (
-    <StyledDiv className={className}>
-      {thumbnails}
-    </StyledDiv>
-  );
-}
+  return <StyledDiv className={className}>{thumbnails}</StyledDiv>;
+};
 
 export default ThumbnailsArea;
 
