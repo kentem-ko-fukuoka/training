@@ -14,6 +14,7 @@ const APP_MEMO_APP = 'memo-app';
 const APP_BINGO = 'bingo';
 const APP_CALENDAR = 'calendar';
 const APP_SLOT_MACHINE = 'slot-machine';
+const APP_TYPING_GAME = 'typing-game';
 
 const App = () => {
 
@@ -40,6 +41,9 @@ const App = () => {
 
       case APP_STOPWATCH:
         return <Stopwatch />;
+        
+      case APP_TYPING_GAME:
+        return <TypingGame />;
 
       default:
         return null;
@@ -56,6 +60,7 @@ const App = () => {
         <button onClick={() => setCurrentApp(APP_CALENDAR)}>Calendar</button>
         <button onClick={() => setCurrentApp(APP_SLOT_MACHINE)}>SlotMachine</button>
         <button onClick={() => setCurrentApp(APP_STOPWATCH)}>Stopwatch</button>
+        <button onClick={() => setCurrentApp(APP_TYPING_GAME)}>TypingGame</button>
       </div>
       {app}
     </>
