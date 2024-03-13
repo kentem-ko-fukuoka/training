@@ -2,11 +2,7 @@ import { useEffect, useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 
 const INITIAL_MESSAGE = 'Click to start!!';
-const LETTERS_ARRAY = ['red', 'pink', 'blue'];
-
-const extractRandom = (strings: string[]): string => {
-  return strings.splice(Math.floor(Math.random() * strings.length), 1)[0];
-}
+const LETTERS_ARRAY = ['red', 'pink', 'blue'] as const;
 
 const replaceUnderscore = (letters: string, index: number): string => {
   return `${letters.substring(0, index)}_${letters.substring(index + 1, letters.length)}`;
@@ -22,6 +18,7 @@ const TypingGame = () => {
 
   const [beginTime, setBeginTime] = useState(0);
   const [displayLetters, setDisplayLetters] = useState(INITIAL_MESSAGE);
+  const [lettersArray, setLettersArray] = useState([...LETTERS_ARRAY]);
   const [inputIndex, setInputIndex] = useState(0);
   const [finishText, setFinishText] = useState('');
 
@@ -39,14 +36,18 @@ const TypingGame = () => {
 
       if (displayLetters.length === inputIndex + 1) {
 
-        if (LETTERS_ARRAY.length === 0) {
+        if (lettersArray.length === 0) {
           const elapsed = Date.now() - beginTime;
           setFinishText(`Finished! ${formatTime(elapsed)}seconds!`);
           setDisplayLetters((prev) => replaceUnderscore(prev, inputIndex));
           return;
         }
 
-        setDisplayLetters(extractRandom(LETTERS_ARRAY));
+        const extractIndex = Math.floor(Math.random() * lettersArray.length);
+        const newDisplayLetters = lettersArray[extractIndex];
+
+        setLettersArray((prev) => (prev.filter((_, index) => index !== extractIndex)));
+        setDisplayLetters(newDisplayLetters);
         setInputIndex(0);
         return;
       }
@@ -67,8 +68,12 @@ const TypingGame = () => {
       return;
     }
 
+    const extractIndex = Math.floor(Math.random() * lettersArray.length);
+    const newDisplayLetters = lettersArray[extractIndex];
+
     setBeginTime(Date.now());
-    setDisplayLetters(extractRandom(LETTERS_ARRAY));
+    setLettersArray((prev) => (prev.filter((_, index) => index !== extractIndex)));
+    setDisplayLetters(newDisplayLetters);
   }
 
   return (
@@ -90,7 +95,7 @@ const GlobalStyle = createGlobalStyle({
   body: {
     backgroundColor: '#fafafa',
     width: '100%',
-    height: '100vh'
+    height: '100dvh'
   },
   '&#root': {
     width: '100%',
@@ -116,6 +121,5 @@ const StyledDiv = styled.div({
 
 const Letters = styled.span({
   fontSize: '48px',
-  letterSpacing: '6px',
-
+  letterSpacing: '6px'
 });
