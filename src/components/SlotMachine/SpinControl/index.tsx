@@ -42,6 +42,12 @@ const SpinControl = ({
             height={110}
             alt='7の画像'
           />
+          <img
+            src={imgSources[0]}
+            width={90}
+            height={110}
+            alt='ベルの画像'
+          />
         </ImgBox>
       </ImgContainer>
       <StopButton
@@ -77,7 +83,7 @@ const spin = keyframes({
     top: '0px'
   },
   to: {
-    top: '-220px'
+    top: '-330px'
   }
 });
 
@@ -87,7 +93,7 @@ const ImgBox = styled.div<{ $imgIndex:number, $delay: number}>`
   width: 90px;
   height: 330px;
   &.spin {
-    animation: ${spin} 100ms ${props => props.$delay}ms infinite;
+    animation: ${spin} 500ms ${props => props.$delay}ms infinite linear;
   }
 `;
 
