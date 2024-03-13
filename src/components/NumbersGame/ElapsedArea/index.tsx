@@ -1,13 +1,21 @@
 import styled from "styled-components";
+import NumberUtil from "../util/numberUtil";
 
-const ElapsedArea = () => {
+type Props = {
+  elapsed: number;
+}
+
+const ElapsedArea = ({ elapsed }: Props) => {
   return (
-    <ElapsedSpan />
+    <ElapsedSpan>{NumberUtil.format(elapsed)}</ElapsedSpan>
   );
 }
 
 export default ElapsedArea;
 
 const ElapsedSpan = styled.span({
-
+  fontSize: '20px',
+  fontWeight: 'bold',
+  textAlign: 'right',
+  color: 'white',
 });
