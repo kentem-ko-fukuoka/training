@@ -5,8 +5,14 @@ type Props = {
 };
 
 const Slide = ({ src }: Props) => {
-  return <StyledImg src={src} width={240} />;
-};
+  return (
+    <StyledImg
+      src={src}
+      width={240}
+      alt='スライドに表示される画像'
+    />
+  );
+}
 
 export default Slide;
 
