@@ -3,17 +3,18 @@ import { createGlobalStyle } from "styled-components";
 import Bingo from "./components/Bingo";
 import Calendar from "./components/Calendar";
 import MemoApp from "./components/MemoApp";
+import NumbersGame from "./components/NumbersGame";
 import Slideshow from "./components/Slideshow";
 import SlotMachine from "./components/SlotMachine";
 import Stopwatch from "./components/Stopwatch";
-import NumbersGame from "./components/NumbersGame";
+import TypingGame from "./components/TypingGame";
 
 const APP_NULL = '';
 const APP_SLIDESHOW = 'slideshow';
 const APP_STOPWATCH = 'stopwatch';
 const APP_MEMO_APP = 'memo-app';
 const APP_BINGO = 'bingo';
-const APP_CALENDAR = 'calendar
+const APP_CALENDAR = 'calendar';
 const APP_SLOT_MACHINE = 'slot-machine';
 const APP_TYPING_GAME = 'typing-game';
 const APP_NUMBERS_GAME = 'numbers-game';
@@ -43,10 +44,10 @@ const App = () => {
 
       case APP_STOPWATCH:
         return <Stopwatch />;
-        
+
       case APP_TYPING_GAME:
         return <TypingGame />;
-        
+
       case APP_NUMBERS_GAME:
         return <NumbersGame />;
 
