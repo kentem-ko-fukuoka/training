@@ -5,9 +5,9 @@ import Slide from "./Slide";
 import ThumbnailsArea from "./ThumbnailArea";
 
 const SLIDE_IMAGE_SOURCES = [
-  "../img/pic0.png",
-  "../img/pic1.png",
-  "../img/pic2.png",
+  '../img/pic0.png',
+  '../img/pic1.png',
+  '../img/pic2.png'
 ] as const satisfies readonly string[];
 
 const SLIDE_INDEX_INITIAL = 0;
@@ -16,17 +16,13 @@ const Slideshow = () => {
   const [currentSlideIndex, setCurrentSlideIndex] =
     useState(SLIDE_INDEX_INITIAL);
 
-  const onClickLeft = () => {
-    setCurrentSlideIndex((prev) => {
-      const length = SLIDE_IMAGE_SOURCES.length;
-      return (prev + length - 1) % length;
-    });
-  };
+  const changeSlide = (direction: 'left' | 'right') => {
 
-  const onClickRight = () => {
+    const slideCount = SLIDE_IMAGE_SOURCES.length;
+
     setCurrentSlideIndex((prev) => {
-      const length = SLIDE_IMAGE_SOURCES.length;
-      return (prev + 1) % length;
+      const increment = direction === 'left' ? -1 : 1;
+      return (prev + increment + slideCount) % slideCount;
     });
   };
 
@@ -35,7 +31,10 @@ const Slideshow = () => {
       <Global />
       <StyledDiv>
         <Slide src={SLIDE_IMAGE_SOURCES[currentSlideIndex]} />
-        <ButtonsArea onClickLeft={onClickLeft} onClickRight={onClickRight} />
+        <ButtonsArea
+          onClickLeft={() => changeSlide('left')}
+          onClickRight={() => changeSlide('right')}
+        />
         <ThumbnailsArea
           slideImageSources={SLIDE_IMAGE_SOURCES}
           currentSlideIndex={currentSlideIndex}
