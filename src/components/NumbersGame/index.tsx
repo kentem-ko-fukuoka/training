@@ -7,7 +7,7 @@ import NumbersArea from "./NumbersArea";
 import StartButton from "./StartButton";
 import NumberUtil from "./util/numberUtil";
 
-const ONE_SIDE_LENGTH = 7;
+const ONE_SIDE_LENGTH = 5;
 
 const NumbersGame = () => {
 
@@ -91,12 +91,10 @@ const GlobalStyle = createGlobalStyle({
   }
 })
 
-const containerWidth = 40 * ONE_SIDE_LENGTH + 12 * (ONE_SIDE_LENGTH  - 1) + 16 * 2;
-
 const Container = styled.main({
   display: 'flex',
   flexDirection: 'column',
   gap: '8px',
-  width: `${containerWidth}px`,
+  width: '280px',
   margin: '0 auto'
 });
