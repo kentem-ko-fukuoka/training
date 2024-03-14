@@ -1,10 +1,9 @@
-import { ChangeEventHandler } from "react";
 import styled from "styled-components";
 import Todo from "../todo";
 
 type Props = {
   todo: Todo;
-  onClickCheckbox: ChangeEventHandler<HTMLInputElement>;
+  onClickCheckbox: () => void;
   onClickDelete: () => void;
 }
 

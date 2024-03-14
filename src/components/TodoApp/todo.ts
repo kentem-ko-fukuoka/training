@@ -11,7 +11,7 @@ let todoId = 0;
 export const createTodo = (text: string): Todo => {
   return ({
     id: todoId++,
-    text: text,
+    text,
     checked: false
   });
 }

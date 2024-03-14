@@ -22,7 +22,7 @@ const TodoApp = () => {
       return;
     }
 
-    const newTodos = [...todos].filter((todo) => {
+    const newTodos = todos.filter((todo) => {
       return !todo.checked;
     });
 
@@ -34,9 +34,13 @@ const TodoApp = () => {
   };
 
   const handleClickAddTodo = () => {
+
     const text = todoText.trim();
-    text === '' || setTodos(prevTodos => ([...prevTodos, createTodo(text)]));
-    setTodoText('');
+
+    if (text !== '') {
+      setTodos(prevTodos => ([...prevTodos, createTodo(text)]));
+      setTodoText('');
+    }
   };
 
   return (
