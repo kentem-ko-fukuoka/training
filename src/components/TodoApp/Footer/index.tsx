@@ -1,26 +1,49 @@
 import { ChangeEventHandler } from "react";
 import styled from "styled-components";
+import Todo, { createTodo } from "../todo";
 
 type Props = {
   todoText: string;
-  onChangeInput: ChangeEventHandler<HTMLInputElement>;
-  onAddTodo: () => void;
+  setTodoText: (
+    callbackFnOrNewTodoText:
+      | ((prevTodoText: string) => string)
+      | string,
+  ) => void;
+  setTodos: (
+    callbackFnOrNewTodos:
+      | ((prevTodos: Todo[]) => Todo[])
+      | Todo[],
+  ) => void;
 }
 
 const Footer = ({
   todoText,
-  onChangeInput,
-  onAddTodo
+  setTodoText,
+  setTodos
 }: Props) => {
+
+  const handleChangeTodoText: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setTodoText(e.target.value);
+  }
+
+  const handleAddTodo = () => {
+
+    const text = todoText.trim();
+
+    if (text !== '') {
+      setTodos(prevTodos => ([...prevTodos, createTodo(text)]));
+      setTodoText('');
+    }
+  };
 
   return (
     <Container>
       <Input
         type='text'
         value={todoText}
-        onChange={onChangeInput}
+        onChange={handleChangeTodoText}
       />
-      <Button onClick={onAddTodo}>Add</Button>
+      <Button onClick={handleAddTodo}>Add</Button>
     </Container>
   );
 }

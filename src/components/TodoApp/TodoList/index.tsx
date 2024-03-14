@@ -8,7 +8,7 @@ type Props = {
     callbackFnOrNewTodos:
       | ((prevTodos: Todo[]) => Todo[])
       | Todo[],
-    ) => void;
+  ) => void;
 }
 
 const TodoList = ({ todos, setTodos }: Props) => {

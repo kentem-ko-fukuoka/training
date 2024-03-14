@@ -1,14 +1,40 @@
 import styled from "styled-components";
+import Todo from "../todo";
 
 type Props = {
-  onDelete: () => void;
+  todos: Todo[];
+  setTodos: (
+    callbackFnOrNewTodos:
+      | ((prevTodos: Todo[]) => Todo[])
+      | Todo[],
+  ) => void;
 }
 
-const Header = ({ onDelete }: Props) => {
+const Header = ({ todos, setTodos }: Props) => {
+
+  const handleClickDelete = () => {
+
+    const checkedCount = todos.filter(todo => todo.checked).length;
+
+    if (checkedCount === 0) {
+      return;
+    }
+
+    if (!window.confirm('Sure?')) {
+      return;
+    }
+
+    const newTodos = todos.filter((todo) => {
+      return !todo.checked;
+    });
+
+    setTodos(newTodos);
+  };
+
   return (
     <Container>
       <Title>Todos</Title>
-      <button onClick={onDelete}>Delete</button>
+      <button onClick={handleClickDelete}>Delete</button>
     </Container>
   );
 }
