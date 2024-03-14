@@ -5,6 +5,7 @@ import Calendar from "./components/Calendar";
 import MemoApp from "./components/MemoApp";
 import NumbersGame from "./components/NumbersGame";
 import Slideshow from "./components/Slideshow";
+import TodoApp from "./components/TodoApp";
 import SlotMachine from "./components/SlotMachine";
 import Stopwatch from "./components/Stopwatch";
 import TypingGame from "./components/TypingGame";
@@ -18,6 +19,7 @@ const APP_CALENDAR = 'calendar';
 const APP_SLOT_MACHINE = 'slot-machine';
 const APP_TYPING_GAME = 'typing-game';
 const APP_NUMBERS_GAME = 'numbers-game';
+const APP_TODO_APP = 'todo-app';
 
 const App = () => {
 
@@ -50,6 +52,9 @@ const App = () => {
 
       case APP_NUMBERS_GAME:
         return <NumbersGame />;
+        
+      case APP_TODO_APP:
+        return <TodoApp />;
 
       default:
         return null;
@@ -68,6 +73,7 @@ const App = () => {
         <button onClick={() => setCurrentApp(APP_STOPWATCH)}>Stopwatch</button>
         <button onClick={() => setCurrentApp(APP_TYPING_GAME)}>TypingGame</button>
         <button onClick={() => setCurrentApp(APP_NUMBERS_GAME)}>NumbersGame</button>
+        <button onClick={() => setCurrentApp(APP_TODO_APP)}>TodoApp</button>
       </div>
       {app}
     </>
