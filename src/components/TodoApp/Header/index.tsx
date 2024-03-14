@@ -1,14 +1,14 @@
 import styled from "styled-components";
 
 type Props = {
-  onPurge: () => void;
+  onDelete: () => void;
 }
 
-const Header = ({ onPurge }: Props) => {
+const Header = ({ onDelete }: Props) => {
   return (
     <Container>
       <Title>Todos</Title>
-      <button onClick={onPurge}>Purge</button>
+      <button onClick={onDelete}>Delete</button>
     </Container>
   );
 }

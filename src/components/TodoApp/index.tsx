@@ -10,7 +10,7 @@ const TodoApp = () => {
   const [todoText, setTodoText] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
 
-  const handleClickPurge = () => {
+  const handleClickDelete = () => {
 
     const checkedCount = todos.filter(todo => todo.checked).length;
 
@@ -45,7 +45,7 @@ const TodoApp = () => {
 
   return (
     <Main>
-      <Header onPurge={handleClickPurge} />
+      <Header onDelete={handleClickDelete} />
       <TodoList todos={todos} setTodos={setTodos} />
       <Footer
         todoText={todoText}
