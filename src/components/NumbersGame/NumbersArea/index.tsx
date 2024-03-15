@@ -15,11 +15,11 @@ const NumbersArea = ({ numberButtons }: Props) => {
 
 export default NumbersArea;
 
-const Container = styled.div({
-  display: 'flex',
-  gap: '12px',
-  flexWrap: 'wrap',
-  backgroundColor: 'white',
-  borderRadius: '4px',
-  padding: '16px',
-});
+const Container = styled.div`
+  display: grid;
+  grid-template: repeat(5, auto) / repeat(5, auto);
+  gap: 12px;
+  background-color: white;
+  border-radius: 4px;
+  padding: 16px;
+`;
