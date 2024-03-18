@@ -8,6 +8,7 @@ import { ButtonAreaState } from "./state/buttonAreaState";
 import { ResetDialogState } from "./state/resetDialogState";
 import BingoUtil from "./util/bingoUtil";
 import LocalStorageUtil from "./util/localStorageUtil";
+import useSound from "use-sound";
 
 export const DISPLAY_NUMBER_INITIAL = 0;
 
@@ -53,6 +54,14 @@ const BingoMachine = () => {
   const [buttonAreaState, setButtonAreaState] = useState(BUTTONS_INITIAL);
   const [resetDialogState, setResetDialogState] = useState(DIALOG_CLOSE);
 
+  const [playDrumroll] = useSound('../sound/drumroll.mp3', {
+    sprite: {
+      begin: [0, 6000],
+      end: [5890, 1000]
+    },
+    interrupt: true
+  });
+
   useEffect(() => {
 
     if (!bingoState.isMove) {
@@ -72,11 +81,13 @@ const BingoMachine = () => {
   }, [bingoState.isMove]);
 
   const start = () => {
+    playDrumroll({ id: 'begin' });
     setBingoState({ ...bingoState, isMove: true });
     setButtonAreaState(ONLY_STOP_ENABLED);
   }
 
   const stop = () => {
+    playDrumroll({ id: 'end' });
     LocalStorageUtil.set(displayNumber);
     setBingoState(prev => ({
       ...prev,
