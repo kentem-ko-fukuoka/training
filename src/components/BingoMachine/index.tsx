@@ -57,7 +57,7 @@ const BingoMachine = () => {
   const [playDrumroll] = useSound('../sound/drumroll.mp3', {
     sprite: {
       begin: [0, 6000],
-      end: [5890, 1000]
+      end: [6000, 1500]
     },
     interrupt: true
   });
