@@ -6,7 +6,7 @@ import {
 } from "react";
 import styled from "styled-components";
 import Button from "../Button";
-import ResetDialogState from "../state/resetDialogState";
+import { ResetDialogState } from "../state/resetDialogState";
 
 type Props = {
   thisState: ResetDialogState;

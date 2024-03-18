@@ -6,17 +6,17 @@ import { ButtonAreaState } from "../state/buttonAreaState";
 type Props = {
   extractedNumbers: number[];
   buttonAreaState: ButtonAreaState;
-  onStart: () => void;
-  onStop: () => void;
-  onReset: () => void;
+  startOnClick: () => void;
+  stopOnClick: () => void;
+  resetOnClick: () => void;
 }
 
 const SideArea = ({
   extractedNumbers,
   buttonAreaState,
-  onStart,
-  onStop,
-  onReset
+  startOnClick,
+  stopOnClick,
+  resetOnClick
 }: Props) => {
 
   return (
@@ -26,9 +26,9 @@ const SideArea = ({
       />
       <ButtonArea
         states={buttonAreaState}
-        onStart={onStart}
-        onStop={onStop}
-        onReset={onReset}
+        onStart={startOnClick}
+        onStop={stopOnClick}
+        onReset={resetOnClick}
       />
     </Container>
   );

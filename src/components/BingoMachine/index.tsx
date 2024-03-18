@@ -3,31 +3,55 @@ import styled, { createGlobalStyle } from "styled-components";
 import NumberDisplay from "./NumberDisplay";
 import ResetDialog from "./ResetDialog";
 import SideArea from "./SideArea";
-import BingoState from "./state/bingoState";
-import ButtonAreaState from "./state/buttonAreaState";
-import ResetDialogState from "./state/resetDialogState";
+import { BingoState } from "./state/bingoState";
+import { ButtonAreaState } from "./state/buttonAreaState";
+import { ResetDialogState } from "./state/resetDialogState";
 import BingoUtil from "./util/bingoUtil";
 import LocalStorageUtil from "./util/localStorageUtil";
 
 export const DISPLAY_NUMBER_INITIAL = 0;
 
+const BINGO_INITIAL: BingoState = {
+  isMove: false,
+  extractedNumbers: []
+};
+
+const BINGO_REFRESHED: BingoState = {
+  isMove: false,
+  extractedNumbers: BingoUtil.getExtractedNumbers()
+} as const;
+
+export const BUTTONS_INITIAL: ButtonAreaState = {
+  isStartDisabled: false,
+  isStopDisabled: true,
+  isResetDisabled: false
+} as const;
+
+export const ONLY_STOP_ENABLED: ButtonAreaState = {
+  isStartDisabled: true,
+  isStopDisabled: false,
+  isResetDisabled: true
+} as const;
+
+export const DIALOG_OPEN: ResetDialogState = {
+  isOpen: true,
+  password: '',
+  isUnmatchPassword: false
+} as const;
+
+export const DIALOG_CLOSE: ResetDialogState = {
+  isOpen: false,
+  password: '',
+  isUnmatchPassword: false
+} as const;
+
 const BingoMachine = () => {
 
   const [displayNumber, setDisplayNumber] = useState(DISPLAY_NUMBER_INITIAL);
 
-  const [bingoState, setBingoState] = useState(BingoState.REFRESHED);
-  const [buttonAreaState, setButtonAreaState] = useState(ButtonAreaState.INITIAL);
-  const [resetDialogState, setResetDialogState] = useState(ResetDialogState.INITIAL);
-
-  useEffect(() => {
-
-    if (bingoState.extractedNumbers.length !== 99) {
-      return;
-    }
-
-    alert('すべての数字が出ました。\nRESETします。');
-    reset();
-  }, [bingoState.extractedNumbers]);
+  const [bingoState, setBingoState] = useState(BINGO_REFRESHED);
+  const [buttonAreaState, setButtonAreaState] = useState(BUTTONS_INITIAL);
+  const [resetDialogState, setResetDialogState] = useState(DIALOG_CLOSE);
 
   useEffect(() => {
 
@@ -49,13 +73,23 @@ const BingoMachine = () => {
 
   const start = () => {
     setBingoState({ ...bingoState, isMove: true });
-    setButtonAreaState(ButtonAreaState.ONLY_STOP_ENABLED);
+    setButtonAreaState(ONLY_STOP_ENABLED);
   }
 
   const stop = () => {
     LocalStorageUtil.set(displayNumber);
-    setBingoState({ extractedNumbers: LocalStorageUtil.get(), isMove: false });
-    setButtonAreaState(ButtonAreaState.ONLY_STOP_DISABLED);
+    setBingoState(prev => ({
+      ...prev,
+      extractedNumbers: [...prev.extractedNumbers, displayNumber],
+      isMove: false }));
+    setButtonAreaState(BUTTONS_INITIAL);
+
+    if (LocalStorageUtil.get().length !== BingoUtil.TARGET_NUMBERS.length) {
+      return;
+    }
+
+    alert('すべての数字が出ました。\nRESETします。');
+    reset();
   };
 
   const handleChangePassword: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -71,9 +105,9 @@ const BingoMachine = () => {
     LocalStorageUtil.clear();
 
     setDisplayNumber(DISPLAY_NUMBER_INITIAL);
-    setBingoState(BingoState.INITIAL);
-    setButtonAreaState(ButtonAreaState.INITIAL);
-    setResetDialogState(ResetDialogState.CLOSE);
+    setBingoState(BINGO_INITIAL);
+    setButtonAreaState(BUTTONS_INITIAL);
+    setResetDialogState(DIALOG_CLOSE);
   };
 
   return (
@@ -87,9 +121,9 @@ const BingoMachine = () => {
         <SideArea
           extractedNumbers={bingoState.extractedNumbers}
           buttonAreaState={buttonAreaState}
-          onStart={start}
-          onStop={stop}
-          onReset={() => setResetDialogState(ResetDialogState.OPEN)}
+          startOnClick={start}
+          stopOnClick={stop}
+          resetOnClick={() => setResetDialogState(DIALOG_OPEN)}
         />
       </Container>
       <ResetDialog
@@ -97,7 +131,7 @@ const BingoMachine = () => {
         setThisState={setResetDialogState}
         onChangePassword={handleChangePassword}
         onReset={reset}
-        onClose={() => setResetDialogState(ResetDialogState.CLOSE)}
+        onClose={() => setResetDialogState(DIALOG_CLOSE)}
       />
     </>
   );
