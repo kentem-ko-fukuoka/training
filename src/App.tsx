@@ -10,6 +10,7 @@ import Stopwatch from "./components/Stopwatch";
 import TodoApp from "./components/TodoApp";
 import TypingGame from "./components/TypingGame";
 import BingoMachine from "./components/BingoMachine";
+import TreeView from "./components/Tree";
 
 const APP_NULL          = '';
 const APP_BINGO         = 'bingo';
@@ -21,6 +22,7 @@ const APP_SLIDESHOW     = 'slideshow';
 const APP_SLOT_MACHINE  = 'slot-machine';
 const APP_STOPWATCH     = 'stopwatch';
 const APP_TODO_APP      = 'todo-app';
+const APP_TREE          = 'tree';
 const APP_TYPING_GAME   = 'typing-game';
 
 const App = () => {
@@ -58,11 +60,15 @@ const App = () => {
       case APP_TODO_APP:
         return <TodoApp />;
 
+      case APP_TREE:
+        return <TreeView />;
+
       case APP_TYPING_GAME:
         return <TypingGame />;
 
       default:
-        return null;
+        // return null;
+        return <TreeView />;
     }
   })();
 
@@ -79,6 +85,7 @@ const App = () => {
         <button onClick={() => setCurrentApp(APP_SLOT_MACHINE)}>SlotMachine</button>
         <button onClick={() => setCurrentApp(APP_STOPWATCH)}>Stopwatch</button>
         <button onClick={() => setCurrentApp(APP_TODO_APP)}>TodoApp</button>
+        <button onClick={() => setCurrentApp(APP_TREE)}>TreeView</button>
         <button onClick={() => setCurrentApp(APP_TYPING_GAME)}>TypingGame</button>
       </div>
       {app}
