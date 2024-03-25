@@ -9,17 +9,19 @@ import SlotMachine from "./components/SlotMachine";
 import Stopwatch from "./components/Stopwatch";
 import TodoApp from "./components/TodoApp";
 import TypingGame from "./components/TypingGame";
+import BingoMachine from "./components/BingoMachine";
 
-const APP_NULL = '';
-const APP_BINGO = 'bingo';
-const APP_CALENDAR = 'calendar';
-const APP_MEMO_APP = 'memo-app';
-const APP_NUMBERS_GAME = 'numbers-game';
-const APP_SLIDESHOW = 'slideshow';
-const APP_SLOT_MACHINE = 'slot-machine';
-const APP_STOPWATCH = 'stopwatch';
-const APP_TODO_APP = 'todo-app';
-const APP_TYPING_GAME = 'typing-game';
+const APP_NULL          = '';
+const APP_BINGO         = 'bingo';
+const APP_BINGO_MACHINE = 'bing-machine';
+const APP_CALENDAR      = 'calendar';
+const APP_MEMO_APP      = 'memo-app';
+const APP_NUMBERS_GAME  = 'numbers-game';
+const APP_SLIDESHOW     = 'slideshow';
+const APP_SLOT_MACHINE  = 'slot-machine';
+const APP_STOPWATCH     = 'stopwatch';
+const APP_TODO_APP      = 'todo-app';
+const APP_TYPING_GAME   = 'typing-game';
 
 const App = () => {
 
@@ -31,6 +33,9 @@ const App = () => {
 
       case APP_BINGO:
         return <Bingo />;
+
+      case APP_BINGO_MACHINE:
+        return <BingoMachine />;
 
       case APP_CALENDAR:
         return <Calendar />;
@@ -66,6 +71,7 @@ const App = () => {
       <Global $isStopwach={currentApp === APP_STOPWATCH} />
       <div>
         <button onClick={() => setCurrentApp(APP_BINGO)}>Bingo</button>
+        <button onClick={() => setCurrentApp(APP_BINGO_MACHINE)}>BingoMachine</button>
         <button onClick={() => setCurrentApp(APP_CALENDAR)}>Calendar</button>
         <button onClick={() => setCurrentApp(APP_MEMO_APP)}>MemoApp</button>
         <button onClick={() => setCurrentApp(APP_NUMBERS_GAME)}>NumbersGame</button>
