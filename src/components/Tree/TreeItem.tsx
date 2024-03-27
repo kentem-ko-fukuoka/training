@@ -1,33 +1,35 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import {
-  DragEvent,
-  DragEventHandler,
-  useContext,
-  useRef,
-  useState
-} from "react";
+import { DragEvent, DragEventHandler, useRef, useState } from "react";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import { DragInfo } from "./Tree";
-import TreeContext from "./TreeContext";
+import TreeLabel from "./TreeLabel";
 import TreeNode from "./treeNode";
+import {
+  CheckableProps,
+  DroppableProps,
+  ExpandableProps,
+  SelectableProps
+} from "./treeProps";
 
 type DroppableState = {
-  prev: boolean;
-  this: boolean;
-  label: boolean;
-  next: boolean;
+  prevBlank: boolean;
+  thisItem: boolean;
+  nextBlank: boolean;
 };
 
-const DROP_DISABLED = {
-  prev: false,
-  this: false,
-  label: false,
-  next: false
+const UNDROPPABLE = {
+  prevBlank: false,
+  thisItem: false,
+  nextBlank: false
 } as const satisfies DroppableState;
 
 type Props = {
   node: TreeNode;
+  selectableProps?: SelectableProps,
+  expandableProps?: ExpandableProps,
+  checkableProps?: CheckableProps,
+  droppableProps?: DroppableProps,
   dragInfo: DragInfo;
   onDragStart: (nodeId: string, previousNodeId: string | undefined) => void;
   previousNodeId: string | undefined;
@@ -37,6 +39,10 @@ type Props = {
 
 const TreeItem = ({
   node,
+  selectableProps,
+  expandableProps,
+  checkableProps,
+  droppableProps,
   dragInfo,
   onDragStart,
   previousNodeId,
@@ -46,137 +52,136 @@ const TreeItem = ({
 
   const isRoot = ancestorNodeIds.length === 0;
 
-  const context = useContext(TreeContext);
+  const isSelected = selectableProps?.nodeId === node.id;
+  const handleSelect = () => selectableProps?.onSelect(node.id);
 
-  const isSelected = context.selectedNodeId === node.id;
+  const isExpanded = expandableProps?.nodeIds?.includes(node.id);
+  const handleToggleExpand = () => expandableProps?.onToggle(node.id);
 
-  const handleSelect = () => {
-    context.onSelect && context.onSelect(node.id);
-  };
+  const isChecked = checkableProps?.checkStates.find(checkState =>
+    checkState.nodeId === node.id)?.checked;
+  const handleToggleCheck = () => checkableProps?.onToggle(node.id);
 
-  const isExpanded = context.expandedNodeIds?.includes(node.id);
+  const prevRef = useRef<HTMLDivElement>(null);
+  const thisRef = useRef<HTMLDivElement>(null);
+  const nextRef = useRef<HTMLDivElement>(null);
 
-  const handleToggle = () => {
-    context.onToggle && context.onToggle(node.id);
-  };
+  const getDragOverArea = (
+    e: DragEvent<HTMLDivElement>
+  ): keyof DroppableState | undefined => {
+    switch (e.currentTarget) {
+      case prevRef.current: return 'prevBlank';
+      case thisRef.current: return 'thisItem';
+      case nextRef.current: return 'nextBlank';
+      default: return undefined;
+    }
+  }
 
-  const [isDroppable, setIsDroppable] = useState<DroppableState>({
-    prev: false,
-    this: false,
-    label: false,
-    next: false
-  });
+  const [isDroppable, setIsDroppable] = useState<DroppableState>(UNDROPPABLE);
 
-  const prevRef = useRef(null);
-  const thisRef = useRef(null);
-  const labelRef = useRef(null);
-  const nextRef = useRef(null);
+  const handleDragOver: DragEventHandler<HTMLDivElement> = (e) => {
 
-  const handleDragEnter = (
-    e: DragEvent<HTMLElement>,
-    dragArea: keyof DroppableState
-  ) => {
-
-    if (e.target instanceof HTMLLabelElement && dragArea === 'this') {
+    if (!droppableProps) {
       return;
     }
 
-    if (e.target === nextRef.current && dragInfo.previousNodeId === node.id) {
-      return;
-    }
+    e.preventDefault();
 
-    if (dragInfo.nodeId === node.id) {
-      return;
-    }
-
-    if (ancestorNodeIds.includes(dragInfo.nodeId)) {
-      return;
-    }
-
-    setIsDroppable((prev) => ({ ...prev, [dragArea]: true }));
-  };
-
-  const handleDragLeave = (
-    e: DragEvent<HTMLElement>,
-    dragArea: keyof DroppableState
-  ) => {
-
-    if (e.target instanceof HTMLLabelElement && dragArea === 'this') {
-      return;
-    }
-
-    setIsDroppable((prev) => ({ ...prev, [dragArea]: false }));
-  };
-
-  const handleDrop: DragEventHandler<HTMLDivElement> = (e) => {
-
-    if (!isDroppable.prev &&
-        !isDroppable.this &&
-        !isDroppable.label &&
-        !isDroppable.next
+    if (
+      dragInfo.nodeId === node.id ||
+      ancestorNodeIds.includes(dragInfo.nodeId) ||
+      (
+        e.currentTarget === nextRef.current &&
+        dragInfo.previousNodeId === node.id
+      )
     ) {
       return;
     }
 
-    setIsDroppable(DROP_DISABLED);
+    const dragOverArea = getDragOverArea(e);
 
-    if (!context.onDrop) {
+    if (dragOverArea) {
+      setIsDroppable(state => ({ ...state, [dragOverArea]: true }));
+    }
+  }
+
+  const handleDragLeave: DragEventHandler<HTMLDivElement> = (e) => {
+
+    if (!droppableProps) {
       return;
     }
 
-    if (e.target === prevRef.current) {
-      context.onDrop(dragInfo.nodeId, [...ancestorNodeIds], undefined);
-      return;
-    }
-
-    if (e.target === thisRef.current || e.target === labelRef.current) {
-      context.onDrop(dragInfo.nodeId, [...ancestorNodeIds, node.id], undefined);
-      return;
-    }
-
-    context.onDrop(dragInfo.nodeId, ancestorNodeIds , node.id);
+    setIsDroppable(UNDROPPABLE);
   };
+
+  const handleDrop: DragEventHandler<HTMLDivElement> = (e) => {
+
+    if (!droppableProps) {
+      return;
+    }
+
+    const dragOverArea = getDragOverArea(e);
+
+    if (!dragOverArea || !isDroppable[dragOverArea]) {
+      return;
+    }
+
+    setIsDroppable(UNDROPPABLE);
+
+    if (dragOverArea === 'prevBlank') {
+      droppableProps.onDrop(dragInfo.nodeId, ancestorNodeIds,
+        undefined);
+      return;
+    }
+
+    if (dragOverArea === 'thisItem') {
+      droppableProps.onDrop(dragInfo.nodeId, [...ancestorNodeIds, node.id],
+        undefined);
+      return;
+    }
+
+    droppableProps.onDrop(dragInfo.nodeId, ancestorNodeIds,
+      node.id);
+  }
 
   if (!node.childNodes) {
     return (
       <>
-        {isFirstNode
-          ? <div
-              css={style.blankPrev(isDroppable)}
-              onDragEnter={(e) => handleDragEnter(e, 'prev')}
-              onDragLeave={(e) => handleDragLeave(e, 'prev')}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-              ref={prevRef}
-            />
-          : null}
+        {isFirstNode &&
+          <div
+            css={style.blankPrev(isDroppable.prevBlank)}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            ref={prevRef}
+          />
+        }
         <div css={style.leafContainer(isRoot)} id={node.id} role='listitem'>
           <div
-            css={style.leafContent(isDroppable)}
-            onDragEnter={(e) => handleDragEnter(e, 'this')}
-            onDragLeave={(e) => handleDragLeave(e, 'this')}
-            onDragOver={(e) => e.preventDefault()}
+            className='thisItem'
+            css={style.leafContent(isDroppable.thisItem)}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
             onDrop={handleDrop}
             ref={thisRef}
           >
-            <label
-              css={style.label(isSelected)}
-              onClick={handleSelect}
-              draggable={!isRoot}
+            <TreeLabel
+              iconType={node.label.iconType}
+              text={node.label.text}
+              isChecked={isChecked}
+              isSelected={isSelected}
+              isDraggable={!isRoot}
+              onSelect={handleSelect}
+              onToggleCheck={handleToggleCheck}
               onDragStart={() => onDragStart(node.id, previousNodeId)}
-              onDragEnter={(e) => handleDragEnter(e, 'label')}
-              onDragLeave={(e) => handleDragLeave(e, 'label')}
-              ref={labelRef}
-            >
-              {node.label}
-            </label>
+            />
           </div>
         </div>
         <div
-          css={style.blankNext(isDroppable)}
-          onDragEnter={(e) => handleDragEnter(e, 'next')}
-          onDragLeave={(e) => handleDragLeave(e, 'next')}
-          onDragOver={(e) => e.preventDefault()}
+          className='nextBlank'
+          css={style.blankNext(isDroppable.nextBlank)}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
           onDrop={handleDrop}
           ref={nextRef}
         />
@@ -186,61 +191,64 @@ const TreeItem = ({
 
   return (
     <>
-      {isFirstNode
-        ? <div
-            css={style.blankPrev(isDroppable)}
-            onDragEnter={(e, ) => handleDragEnter(e, 'prev')}
-            onDragLeave={(e) => handleDragLeave(e, 'prev')}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDrop}
-            ref={prevRef}
-          />
-        : null}
+      {isFirstNode &&
+        <div
+          className='prevBlank'
+          css={style.blankPrev(isDroppable.prevBlank)}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          ref={prevRef}
+        />
+      }
       <div css={style.nodeContainer(isRoot)} id={node.id} role='listitem'>
         <div
-          css={style.nodeContent(isDroppable)}
-          onDragEnter={(e) => handleDragEnter(e, 'this')}
-          onDragLeave={(e) => handleDragLeave(e, 'this')}
-          onDragOver={(e) => e.preventDefault()}
+          className='thisItem'
+          css={style.nodeContent(isDroppable.thisItem)}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
           onDrop={handleDrop}
           ref={thisRef}
         >
-          <button css={style.toggle} onClick={handleToggle}>
+          <button css={style.toggle} onClick={handleToggleExpand}>
             {isExpanded ? <IoIosArrowDown /> : <IoIosArrowForward />}
           </button>
-          <label
-            css={style.label(isSelected)}
-            onClick={handleSelect}
-            draggable={!isRoot}
+          <TreeLabel
+            iconType={node.label.iconType}
+            text={node.label.text}
+            isChecked={isChecked}
+            isSelected={isSelected}
+            isDraggable={!isRoot}
+            onSelect={handleSelect}
+            onToggleCheck={handleToggleCheck}
             onDragStart={() => onDragStart(node.id, previousNodeId)}
-            onDragEnter={(e) => handleDragEnter(e, 'label')}
-            onDragLeave={(e) => handleDragLeave(e, 'label')}
-            ref={labelRef}
-          >
-            {node.label}
-          </label>
+          />
         </div>
-        {isExpanded
-          ? <div role='list'>
-              {node.childNodes?.map((childNode, i, childNodes) => (
-                <TreeItem
-                  node={childNode}
-                  dragInfo={dragInfo}
-                  onDragStart={onDragStart}
-                  previousNodeId={i === 0 ? undefined : childNodes[i - 1].id}
-                  ancestorNodeIds={[...ancestorNodeIds, node.id]}
-                  isFirstNode={i === 0}
-                  key={childNode.id}
-                />
-              ))}
-            </div>
-          : null}
+        {isExpanded &&
+          <div role='list'>
+            {node.childNodes?.map((childNode, i, childNodes) => (
+              <TreeItem
+                node={childNode}
+                selectableProps={selectableProps}
+                expandableProps={expandableProps}
+                checkableProps={checkableProps}
+                droppableProps={droppableProps}
+                dragInfo={dragInfo}
+                onDragStart={onDragStart}
+                previousNodeId={i === 0 ? undefined : childNodes[i - 1].id}
+                ancestorNodeIds={[...ancestorNodeIds, node.id]}
+                isFirstNode={i === 0}
+                key={childNode.id}
+              />
+            ))}
+          </div>
+        }
       </div>
       <div
-        css={style.blankNext(isDroppable)}
-        onDragEnter={(e) => handleDragEnter(e, 'next')}
-        onDragLeave={(e) => handleDragLeave(e, 'next')}
-        onDragOver={(e) => e.preventDefault()}
+        className='nextBlank'
+        css={style.blankNext(isDroppable.nextBlank)}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
         onDrop={handleDrop}
         ref={nextRef}
       />
@@ -254,20 +262,16 @@ const style = {
   leafContainer: (isTopLayer: boolean) => css({
     paddingLeft: isTopLayer ? undefined : '3rem'
   }),
-  leafContent: (isDroppable: DroppableState) => css({
-    backgroundColor: isDroppable.this || isDroppable.label
-      ? 'palegreen'
-      : undefined
+  leafContent: (isDroppable: boolean) => css({
+    backgroundColor: isDroppable ? 'palegreen' : undefined
   }),
   nodeContainer: (isTopLayer: boolean) => css({
     paddingLeft: isTopLayer ? undefined : '1.5rem'
   }),
-  nodeContent: (isDroppable: DroppableState) => css({
+  nodeContent: (isDroppable: boolean) =>css({
     display: 'flex',
     gap: '.5rem',
-    backgroundColor: isDroppable.this || isDroppable.label
-      ? 'palegreen'
-      : undefined
+    backgroundColor: isDroppable ? 'palegreen' : undefined
   }),
   toggle: css({
     all: 'unset',
@@ -287,12 +291,12 @@ const style = {
       backgroundColor: isSelected ? undefined : 'palegreen'
     }
   }),
-  blankPrev: (isDroppable: DroppableState) => css({
-    backgroundColor: isDroppable.prev ? 'palegreen' : undefined,
-    height: '.25rem'
+  blankPrev: (isDroppable: boolean) => css({
+    height: '4px',
+    backgroundColor: isDroppable ? 'palegreen' : undefined
   }),
-  blankNext: (isDroppable: DroppableState) => css({
-    backgroundColor: isDroppable.next ? 'palegreen' : undefined,
-    height: '.25rem'
+  blankNext: (isDroppable: boolean) => css({
+    height: '4px',
+    backgroundColor: isDroppable ? 'palegreen' : undefined
   })
 };

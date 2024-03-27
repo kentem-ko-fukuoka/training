@@ -1,9 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { Global, css } from "@emotion/react";
 import { useState } from "react";
+import Tree from "./Tree";
 import node from './data/treeData';
 import TreeNode from "./treeNode";
-import Tree from "./Tree";
+import { CheckState } from "./treeProps";
 
 const TreeView = () => {
 
@@ -28,13 +29,46 @@ const TreeView = () => {
     '1-3',
   ]);
 
-  const handleToggle = (nodeId: string) => {
+  const handleToggleExpand = (nodeId: string) => {
     if (expandedIds.includes(nodeId)) {
       setExpandedIds(expandedIds.filter((expandedId => nodeId !== expandedId)));
       return;
     }
     setExpandedIds([...expandedIds, nodeId]);
   };
+
+  const toCheckStates = (node: TreeNode): CheckState[] => {
+
+    const checkStates: CheckState[] = [];
+
+    if (node.isChecked !== undefined) {
+      checkStates.push({ nodeId: node.id, checked: node.isChecked });
+    }
+
+    if (node.childNodes && node.childNodes.length > 0) {
+      node.childNodes.forEach(childNode => {
+        const states = toCheckStates(childNode);
+        checkStates.push(...states);
+      });
+    }
+
+    return checkStates;
+  }
+
+  const [checkStates, setCheckStates] = useState<CheckState[]>(
+    toCheckStates(node) ?? []);
+
+  const handleToggleCheck = (nodeId: string) => {
+
+    const newStates: CheckState[] = checkStates.map((state) => {
+      return {
+        nodeId: state.nodeId,
+        checked: state.nodeId === nodeId ? !state.checked : state.checked
+      }
+    });
+
+    setCheckStates(newStates);
+  }
 
   const extractNode = (
     node: TreeNode,
@@ -122,8 +156,6 @@ const TreeView = () => {
     previousNodeId: string | undefined
   ): void => {
 
-    console.log(droppedNodeId, ancestorNodeIds, previousNodeId);
-
     const node = {...treeNode};
     const extractedNode = extractNode(node, droppedNodeId);
 
@@ -141,11 +173,16 @@ const TreeView = () => {
       <div>
         <Tree
           nodes={treeNode}
-          selectedNodeId={selectedId}
-          onSelect={handleSelect}
-          expandedNodeIds={expandedIds}
-          onToggle={handleToggle}
-          onDrop={handleDrop}
+          selectableProps={{ nodeId: selectedId, onSelect: handleSelect }}
+          expandableProps={{
+            nodeIds: expandedIds,
+            onToggle: handleToggleExpand
+          }}
+          checkableProps={{
+            checkStates: checkStates,
+            onToggle: handleToggleCheck
+          }}
+          droppableProps={{ onDrop: handleDrop }}
         />
       </div>
     </>
