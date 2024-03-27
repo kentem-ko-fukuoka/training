@@ -59,7 +59,9 @@ const TreeItem = ({
 
   const isRootNode = ancestorNodeIds.length === 0;
   const isFirstNode = previousNodeId === undefined;
-  const isLastNode = nextNodeId === undefined;
+
+  const hasGreatGrandchildren = node.childNodes && node.childNodes.filter(
+    childNode => childNode.childNodes !== undefined).length > 0;
 
   const isSelected = selectableProps?.nodeId === node.id;
   const handleSelect = () => selectableProps?.onSelect(node.id);
@@ -179,9 +181,8 @@ const TreeItem = ({
             ref={prevRef}
           />
         }
-        <div css={style.leafContainer(isRootNode)} id={node.id} role='listitem'>
+        <div css={style.leafContainer(isRootNode)} role='listitem'>
           <div
-            className='thisItem'
             css={style.leafContent(isDroppable.thisItem)}
             onDragLeave={handleDragLeave}
             onDragOver={handleDragOver}
@@ -200,7 +201,6 @@ const TreeItem = ({
           </div>
         </div>
         <div
-          className='nextBlank'
           css={style.blankNext(isDroppable.nextBlank)}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
@@ -215,7 +215,6 @@ const TreeItem = ({
     <>
       {isFirstNode &&
         <div
-          className='prevBlank'
           css={style.blankPrev(isDroppable.prevBlank)}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
@@ -223,9 +222,8 @@ const TreeItem = ({
           ref={prevRef}
         />
       }
-      <div css={style.nodeContainer(isRootNode)} id={node.id} role='listitem'>
+      <div css={style.nodeContainer(isRootNode)} role='listitem'>
         <div
-          className='thisItem'
           css={style.nodeContent(isDroppable.thisItem)}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
@@ -270,14 +268,15 @@ const TreeItem = ({
           </div>
         }
       </div>
-      <div
-        className='nextBlank'
-        css={style.blankNext(isDroppable.nextBlank)}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        ref={nextRef}
-      />
+      {!hasGreatGrandchildren &&
+        <div
+          css={style.blankNext(isDroppable.nextBlank)}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          ref={nextRef}
+        />
+      }
     </>
   );
 }
@@ -285,14 +284,14 @@ const TreeItem = ({
 export default TreeItem;
 
 const style = {
-  leafContainer: (isTopLayer: boolean) => css({
-    paddingLeft: isTopLayer ? undefined : '3rem'
+  leafContainer: (isRootNode: boolean) => css({
+    paddingLeft: isRootNode ? undefined : '3rem'
   }),
   leafContent: (isDroppable: boolean) => css({
     backgroundColor: isDroppable ? 'palegreen' : undefined
   }),
-  nodeContainer: (isTopLayer: boolean) => css({
-    paddingLeft: isTopLayer ? undefined : '1.5rem'
+  nodeContainer: (isRootNode: boolean) => css({
+    paddingLeft: isRootNode ? undefined : '1.5rem'
   }),
   nodeContent: (isDroppable: boolean) =>css({
     display: 'flex',
