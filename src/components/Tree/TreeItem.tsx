@@ -2,7 +2,7 @@
 import { css } from "@emotion/react";
 import { DragEvent, DragEventHandler, useRef, useState } from "react";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
-import { DragInfo } from "./Tree";
+import { DragNode } from "./Tree";
 import TreeLabel from "./TreeLabel";
 import TreeNode from "./treeNode";
 import {
@@ -30,11 +30,17 @@ type Props = {
   expandableProps?: ExpandableProps,
   checkableProps?: CheckableProps,
   droppableProps?: DroppableProps,
-  dragInfo: DragInfo;
-  onDragStart: (nodeId: string, previousNodeId: string | undefined) => void;
+  parentNodeId: string | undefined;
   previousNodeId: string | undefined;
-  ancestorNodeIds?: string[];
-  isFirstNode?: boolean;
+  nextNodeId: string | undefined;
+  ancestorNodeIds: string[];
+  dragNode: DragNode;
+  onDragStart: (
+    nodeId: string,
+    parentNodeId: string | undefined,
+    previousNodeId: string | undefined,
+    nextNodeId: string | undefined
+  ) => void;
 };
 
 const TreeItem = ({
@@ -43,14 +49,17 @@ const TreeItem = ({
   expandableProps,
   checkableProps,
   droppableProps,
-  dragInfo,
-  onDragStart,
+  parentNodeId,
   previousNodeId,
-  ancestorNodeIds = [],
-  isFirstNode = false
+  nextNodeId,
+  ancestorNodeIds,
+  dragNode,
+  onDragStart
 }: Props) => {
 
-  const isRoot = ancestorNodeIds.length === 0;
+  const isRootNode = ancestorNodeIds.length === 0;
+  const isFirstNode = previousNodeId === undefined;
+  const isLastNode = nextNodeId === undefined;
 
   const isSelected = selectableProps?.nodeId === node.id;
   const handleSelect = () => selectableProps?.onSelect(node.id);
@@ -75,7 +84,16 @@ const TreeItem = ({
       case nextRef.current: return 'nextBlank';
       default: return undefined;
     }
-  }
+  };
+
+  const handleDragStart = () => {
+
+    if (!droppableProps) {
+      return;
+    }
+
+    onDragStart(node.id, parentNodeId, previousNodeId, nextNodeId);
+  };
 
   const [isDroppable, setIsDroppable] = useState<DroppableState>(UNDROPPABLE);
 
@@ -88,11 +106,16 @@ const TreeItem = ({
     e.preventDefault();
 
     if (
-      dragInfo.nodeId === node.id ||
-      ancestorNodeIds.includes(dragInfo.nodeId) ||
+      dragNode.id === node.id ||
+      ancestorNodeIds.includes(dragNode.id) ||
       (
         e.currentTarget === nextRef.current &&
-        dragInfo.previousNodeId === node.id
+        dragNode.previousId === node.id
+      ) ||
+      (
+        e.currentTarget === thisRef.current &&
+        dragNode.isLastNode &&
+        dragNode.parentId === node.id
       )
     ) {
       return;
@@ -129,18 +152,18 @@ const TreeItem = ({
     setIsDroppable(UNDROPPABLE);
 
     if (dragOverArea === 'prevBlank') {
-      droppableProps.onDrop(dragInfo.nodeId, ancestorNodeIds,
+      droppableProps.onDrop(dragNode.id, ancestorNodeIds,
         undefined);
       return;
     }
 
     if (dragOverArea === 'thisItem') {
-      droppableProps.onDrop(dragInfo.nodeId, [...ancestorNodeIds, node.id],
-        undefined);
+      droppableProps.onDrop(dragNode.id, [...ancestorNodeIds, node.id],
+        node.childNodes ? node.childNodes.at(-1)?.id : undefined);
       return;
     }
 
-    droppableProps.onDrop(dragInfo.nodeId, ancestorNodeIds,
+    droppableProps.onDrop(dragNode.id, ancestorNodeIds,
       node.id);
   }
 
@@ -156,7 +179,7 @@ const TreeItem = ({
             ref={prevRef}
           />
         }
-        <div css={style.leafContainer(isRoot)} id={node.id} role='listitem'>
+        <div css={style.leafContainer(isRootNode)} id={node.id} role='listitem'>
           <div
             className='thisItem'
             css={style.leafContent(isDroppable.thisItem)}
@@ -170,10 +193,9 @@ const TreeItem = ({
               text={node.label.text}
               isChecked={isChecked}
               isSelected={isSelected}
-              isDraggable={!isRoot}
               onSelect={handleSelect}
               onToggleCheck={handleToggleCheck}
-              onDragStart={() => onDragStart(node.id, previousNodeId)}
+              onDragStart={handleDragStart}
             />
           </div>
         </div>
@@ -201,7 +223,7 @@ const TreeItem = ({
           ref={prevRef}
         />
       }
-      <div css={style.nodeContainer(isRoot)} id={node.id} role='listitem'>
+      <div css={style.nodeContainer(isRootNode)} id={node.id} role='listitem'>
         <div
           className='thisItem'
           css={style.nodeContent(isDroppable.thisItem)}
@@ -218,29 +240,33 @@ const TreeItem = ({
             text={node.label.text}
             isChecked={isChecked}
             isSelected={isSelected}
-            isDraggable={!isRoot}
             onSelect={handleSelect}
             onToggleCheck={handleToggleCheck}
-            onDragStart={() => onDragStart(node.id, previousNodeId)}
+            onDragStart={handleDragStart}
           />
         </div>
         {isExpanded &&
           <div role='list'>
-            {node.childNodes?.map((childNode, i, childNodes) => (
-              <TreeItem
-                node={childNode}
-                selectableProps={selectableProps}
-                expandableProps={expandableProps}
-                checkableProps={checkableProps}
-                droppableProps={droppableProps}
-                dragInfo={dragInfo}
-                onDragStart={onDragStart}
-                previousNodeId={i === 0 ? undefined : childNodes[i - 1].id}
-                ancestorNodeIds={[...ancestorNodeIds, node.id]}
-                isFirstNode={i === 0}
-                key={childNode.id}
-              />
-            ))}
+            {node.childNodes?.map((childNode, i, childNodes) => {
+              const isFirst = i === 0;
+              const isLast = i === childNodes.length - 1;
+              return (
+                <TreeItem
+                  node={childNode}
+                  selectableProps={selectableProps}
+                  expandableProps={expandableProps}
+                  checkableProps={checkableProps}
+                  droppableProps={droppableProps}
+                  parentNodeId={node.id}
+                  previousNodeId={isFirst ? undefined : childNodes[i - 1].id}
+                  nextNodeId={isLast ? undefined : childNodes[i + 1].id}
+                  ancestorNodeIds={[...ancestorNodeIds, node.id]}
+                  dragNode={dragNode}
+                  onDragStart={onDragStart}
+                  key={childNode.id}
+                />
+              )
+            })}
           </div>
         }
       </div>

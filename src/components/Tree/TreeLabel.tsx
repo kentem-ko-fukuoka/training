@@ -10,7 +10,6 @@ export type TreeLabelProps = {
 type Props = {
   isChecked?: boolean;
   isSelected: boolean;
-  isDraggable: boolean;
   onSelect: () => void;
   onToggleCheck?: () => void;
   onDragStart: () => void;
@@ -21,7 +20,6 @@ const TreeLabel = ({
   text,
   isChecked,
   isSelected,
-  isDraggable,
   onSelect,
   onToggleCheck,
   onDragStart
@@ -50,7 +48,7 @@ const TreeLabel = ({
       {iconType && iconType({ size: '1.5rem' })}
       <span
         css={style.label(isSelected)}
-        draggable={isDraggable}
+        draggable={true}
         onClick={onSelect}
         onDragStart={onDragStart}
         onDragOver={(e) => e.preventDefault()}

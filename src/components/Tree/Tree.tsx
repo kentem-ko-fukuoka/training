@@ -8,9 +8,14 @@ import {
   SelectableProps
 } from "./treeProps";
 
-export type DragInfo = {
-  nodeId: string;
-  previousNodeId: string | undefined;
+export type DragNode = {
+  id: string;
+  parentId: string | undefined;
+  previousId: string | undefined;
+  nextId: string | undefined;
+  isRootNode: boolean;
+  isFirstNode: boolean;
+  isLastNode: boolean;
 };
 
 type Props = {
@@ -33,33 +38,55 @@ const Tree = ({
     nodes = [nodes];
   }
 
-  const [dragInfo, setDragInfo] = useState<DragInfo>({
-    nodeId: '',
-    previousNodeId: ''
+  const [dragNode, setDragNode] = useState<DragNode>({
+    id: '',
+    parentId: '',
+    previousId: '',
+    nextId: '',
+    isRootNode: false,
+    isFirstNode: false,
+    isLastNode: false
   });
 
   const handleDragStart = (
-    nodeId: string,
-    previousNodeId: string | undefined
+    id: string,
+    parentId: string | undefined,
+    previousId: string | undefined,
+    nextId: string | undefined
   ) => {
-    setDragInfo(prev => ({ ...prev, nodeId, previousNodeId }));
+    setDragNode({
+      id,
+      parentId,
+      previousId,
+      nextId,
+      isRootNode: parentId === undefined,
+      isFirstNode: previousId === undefined,
+      isLastNode: nextId === undefined
+    });
   };
 
   return (
     <div role='list'>
-      {nodes.map((node) => (
-        <TreeItem
-          node={node}
-          selectableProps={selectableProps}
-          expandableProps={expandableProps}
-          checkableProps={checkableProps}
-          droppableProps={droppableProps}
-          dragInfo={dragInfo}
-          onDragStart={handleDragStart}
-          previousNodeId={undefined}
-          key={node.id}
-        />
-      ))}
+      {nodes.map((node, i, nodes) => {
+        const isFirst = i === 0;
+        const isLast = i === nodes.length - 1;
+        return (
+          <TreeItem
+            node={node}
+            selectableProps={selectableProps}
+            expandableProps={expandableProps}
+            checkableProps={checkableProps}
+            droppableProps={droppableProps}
+            dragNode={dragNode}
+            onDragStart={handleDragStart}
+            parentNodeId={undefined}
+            previousNodeId={isFirst ? undefined : nodes[i - 1].id}
+            nextNodeId={isLast ? undefined : nodes[i + 1].id}
+            ancestorNodeIds={[]}
+            key={node.id}
+          />
+        )
+      })}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 import { Global, css } from "@emotion/react";
 import { useState } from "react";
 import Tree from "./Tree";
-import node from './data/treeData';
+import nodes from './data/treeData';
 import TreeNode from "./treeNode";
 import { CheckState } from "./treeProps";
 
@@ -37,26 +37,27 @@ const TreeView = () => {
     setExpandedIds([...expandedIds, nodeId]);
   };
 
-  const toCheckStates = (node: TreeNode): CheckState[] => {
+  const toCheckStates = (nodes: TreeNode[]): CheckState[] => {
 
     const checkStates: CheckState[] = [];
 
-    if (node.isChecked !== undefined) {
-      checkStates.push({ nodeId: node.id, checked: node.isChecked });
-    }
+    nodes.forEach((node) => {
 
-    if (node.childNodes && node.childNodes.length > 0) {
-      node.childNodes.forEach(childNode => {
-        const states = toCheckStates(childNode);
+      if (node.isChecked !== undefined) {
+        checkStates.push({ nodeId: node.id, checked: node.isChecked });
+      }
+
+      if (node.childNodes) {
+        const states = toCheckStates(node.childNodes);
         checkStates.push(...states);
-      });
-    }
+      }
+    });
 
     return checkStates;
   }
 
   const [checkStates, setCheckStates] = useState<CheckState[]>(
-    toCheckStates(node) ?? []);
+    toCheckStates(nodes) ?? []);
 
   const handleToggleCheck = (nodeId: string) => {
 
@@ -71,37 +72,37 @@ const TreeView = () => {
   }
 
   const extractNode = (
-    node: TreeNode,
+    nodes: TreeNode[],
     extractNodeId: string
   ): TreeNode | null => {
 
-    if (!node.childNodes) {
-      return null;
-    }
+    let extractedNode: TreeNode | null = null;
 
-    const extractIndex = node.childNodes.findIndex(v => v.id === extractNodeId);
+    nodes.forEach((node) => {
 
-    if (extractIndex === -1) {
-
-      for (let i = 0; i < node.childNodes.length; i++) {
-
-        const extractedNode = extractNode(node.childNodes[i], extractNodeId);
-
-        if (extractedNode !== null) {
-          return extractedNode;
-        }
+      if (!node.childNodes) {
+        return;
       }
 
-      return null;
-    }
+      const extractIndex = node.childNodes.findIndex(
+        v => v.id === extractNodeId);
 
-    const extractedNode = node.childNodes[extractIndex];
+      if (extractIndex === -1) {
+        const v = extractNode(node.childNodes, extractNodeId);
+        if (v) {
+          extractedNode = v;
+        }
+        return;
+      }
 
-    node.childNodes.splice(extractIndex, 1);
+      extractedNode = node.childNodes[extractIndex];
 
-    if (node.childNodes.length === 0) {
-      node.childNodes = undefined;
-    }
+      node.childNodes.splice(extractIndex, 1);
+
+      if (node.childNodes.length === 0) {
+        node.childNodes = undefined;
+      }
+    });
 
     return extractedNode;
   };
@@ -148,7 +149,7 @@ const TreeView = () => {
     }
   }
 
-  const [treeNode, setTreeNode] = useState<TreeNode>({...node});
+  const [treeNodes, setTreeNodes] = useState<TreeNode[]>(nodes);
 
   const handleDrop = (
     droppedNodeId: string,
@@ -156,15 +157,29 @@ const TreeView = () => {
     previousNodeId: string | undefined
   ): void => {
 
-    const node = {...treeNode};
-    const extractedNode = extractNode(node, droppedNodeId);
+    console.log(droppedNodeId, ancestorNodeIds, previousNodeId)
+
+    const nodes = [...treeNodes];
+
+    const extractedNode = extractNode(nodes, droppedNodeId);
 
     if (extractedNode === null) {
       return;
     }
 
-    insertNode(extractedNode, node, ancestorNodeIds, previousNodeId);
-    setTreeNode(node);
+    if (ancestorNodeIds.length === 0) {
+      nodes.unshift(extractedNode);
+      setTreeNodes(nodes);
+      return;
+    }
+
+    nodes.forEach((node) => {
+      if (ancestorNodeIds[0] === node.id) {
+        insertNode(extractedNode, node, ancestorNodeIds, previousNodeId);
+      }
+    });
+
+    setTreeNodes(nodes);
   }
 
   return (
@@ -172,7 +187,7 @@ const TreeView = () => {
       <Global styles={style.global} />
       <div>
         <Tree
-          nodes={treeNode}
+          nodes={treeNodes}
           selectableProps={{ nodeId: selectedId, onSelect: handleSelect }}
           expandableProps={{
             nodeIds: expandedIds,
