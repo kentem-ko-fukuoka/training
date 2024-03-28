@@ -7,6 +7,12 @@ import {
   ExpandableProps,
   SelectableProps
 } from "./treeProps";
+import {
+  getNode,
+  getOrderedNodeIds,
+  getParentNodeId,
+  getText
+} from "./treeUtil";
 
 export type DragNode = {
   id: string;
@@ -27,35 +33,6 @@ const EDIT_INFO_INITIAL = {
   id: undefined,
   text: ''
 } as const satisfies EditInfo;
-
-const getText = (nodes: TreeNode[], nodeId: string) => {
-
-  let text = '';
-
-  nodes.forEach((node) => {
-
-    if (!node.childNodes) {
-      return;
-    }
-
-    const index = node.childNodes.findIndex(child => child.id === nodeId);
-
-    if (index === -1) {
-
-      const childText = getText(node.childNodes, nodeId);
-
-      if (childText !== '') {
-        text = childText;
-      }
-
-      return;
-    }
-
-    text = node.childNodes[index].label.text;
-  });
-
-  return text;
-};
 
 type Props = {
   nodes: TreeNode | TreeNode[];
@@ -128,26 +105,73 @@ const Tree = ({
     setEditInfo(EDIT_INFO_INITIAL);
   };
 
+  const orderedNodeIds = getOrderedNodeIds(nodes, expandableProps?.nodeIds);
+
   useEffect(() => {
 
     const handleKeyDown = (e: KeyboardEvent) => {
 
-      if (
-        !selectableProps ||
-        !selectableProps.nodeId ||
-        !selectableProps.editableProps
-      ) {
+      if (!selectableProps || !selectableProps.nodeId) {
+        return;
+      }
+
+      const treeNodes = Array.isArray(nodes) ? nodes : [nodes];
+      const selectedNodeId = selectableProps.nodeId;
+
+      if (e.key === 'ArrowUp') {
+
+        const index = orderedNodeIds.findIndex(id => id === selectedNodeId);
+
+        if (index !== 0) {
+          selectableProps.onSelect(orderedNodeIds[index - 1]);
+        }
+
+        return;
+      }
+
+      if (e.key === 'ArrowDown') {
+
+        const index = orderedNodeIds.findIndex(id => id === selectedNodeId);
+
+        if (index !== orderedNodeIds.length - 1) {
+          selectableProps.onSelect(orderedNodeIds[index + 1]);
+        }
+
+        return;
+      }
+
+      if (e.key === 'ArrowRight') {
+
+        if (!getNode(treeNodes, selectedNodeId)?.childNodes) {
+          return;
+        }
+
+        if (!expandableProps?.nodeIds.includes(selectedNodeId)) {
+          expandableProps?.onToggle(selectedNodeId);
+        }
+
+        return;
+      }
+
+      if (e.key === 'ArrowLeft') {
+
+        if (expandableProps?.nodeIds.includes(selectedNodeId)) {
+          expandableProps?.onToggle(selectedNodeId);
+          return;
+        }
+
+        const parentId = getParentNodeId(treeNodes, selectedNodeId);
+        parentId && selectableProps.onSelect(parentId);
+        return;
+      }
+
+      if (!selectableProps.editableProps) {
         return;
       }
 
       if (editInfo.id === undefined && e.key === 'F2') {
-
-        const nodeId = selectableProps.nodeId;
-        const text = Array.isArray(nodes)
-          ? getText(nodes, nodeId)
-          : getText([nodes], nodeId);
-
-        setEditInfo({ id: nodeId, text });
+        const text = getText(treeNodes, selectedNodeId);
+        setEditInfo({ id: selectedNodeId, text });
         return;
       }
 
@@ -170,7 +194,13 @@ const Tree = ({
     return (() => {
       document.removeEventListener('keydown', handleKeyDown);
     });
-  }, [nodes, selectableProps?.nodeId, editInfo.id, editInfo.text]);
+  }, [
+    nodes,
+    selectableProps?.nodeId,
+    editInfo.id,
+    editInfo.text,
+    orderedNodeIds
+  ]);
 
   const treeRef = useRef<HTMLDivElement>(null);
 
