@@ -2,7 +2,7 @@
 import { Global, css } from "@emotion/react";
 import { useState } from "react";
 import Tree from "./Tree";
-import nodes from './data/treeData';
+import nodes from './data/treeData1';
 import TreeNode from "./treeNode";
 import { CheckState } from "./treeProps";
 
@@ -168,7 +168,7 @@ const TreeView = () => {
     }
 
     if (ancestorNodeIds.length === 0) {
-      nodes.unshift(extractedNode);
+      nodes.push(extractedNode);
       setTreeNodes(nodes);
       return;
     }

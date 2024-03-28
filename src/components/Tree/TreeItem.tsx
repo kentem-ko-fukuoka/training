@@ -16,12 +16,14 @@ type DroppableState = {
   prevBlank: boolean;
   thisItem: boolean;
   nextBlank: boolean;
+  nextParent: boolean;
 };
 
 const UNDROPPABLE = {
   prevBlank: false,
   thisItem: false,
-  nextBlank: false
+  nextBlank: false,
+  nextParent: false
 } as const satisfies DroppableState;
 
 type Props = {
@@ -59,9 +61,7 @@ const TreeItem = ({
 
   const isRootNode = ancestorNodeIds.length === 0;
   const isFirstNode = previousNodeId === undefined;
-
-  const hasGreatGrandchildren = node.childNodes && node.childNodes.filter(
-    childNode => childNode.childNodes !== undefined).length > 0;
+  const isLastNode = nextNodeId === undefined;
 
   const isSelected = selectableProps?.nodeId === node.id;
   const handleSelect = () => selectableProps?.onSelect(node.id);
@@ -76,6 +76,7 @@ const TreeItem = ({
   const prevRef = useRef<HTMLDivElement>(null);
   const thisRef = useRef<HTMLDivElement>(null);
   const nextRef = useRef<HTMLDivElement>(null);
+  const nextParentRef = useRef<HTMLDivElement>(null);
 
   const getDragOverArea = (
     e: DragEvent<HTMLDivElement>
@@ -84,6 +85,7 @@ const TreeItem = ({
       case prevRef.current: return 'prevBlank';
       case thisRef.current: return 'thisItem';
       case nextRef.current: return 'nextBlank';
+      case nextParentRef.current: return 'nextParent';
       default: return undefined;
     }
   };
@@ -147,6 +149,8 @@ const TreeItem = ({
 
     const dragOverArea = getDragOverArea(e);
 
+    console.log(dragOverArea)
+
     if (!dragOverArea || !isDroppable[dragOverArea]) {
       return;
     }
@@ -154,8 +158,7 @@ const TreeItem = ({
     setIsDroppable(UNDROPPABLE);
 
     if (dragOverArea === 'prevBlank') {
-      droppableProps.onDrop(dragNode.id, ancestorNodeIds,
-        undefined);
+      droppableProps.onDrop(dragNode.id, ancestorNodeIds, undefined);
       return;
     }
 
@@ -165,8 +168,13 @@ const TreeItem = ({
       return;
     }
 
-    droppableProps.onDrop(dragNode.id, ancestorNodeIds,
-      node.id);
+    if (dragOverArea === 'nextBlank') {
+      droppableProps.onDrop(dragNode.id, ancestorNodeIds, node.id);
+      return;
+    }
+
+    droppableProps.onDrop(dragNode.id,
+      [...ancestorNodeIds].splice(0, ancestorNodeIds.length - 1), parentNodeId);
   }
 
   if (!node.childNodes) {
@@ -200,13 +208,39 @@ const TreeItem = ({
             />
           </div>
         </div>
-        <div
-          css={style.blankNext(isDroppable.nextBlank)}
-          onDragLeave={handleDragLeave}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          ref={nextRef}
-        />
+        {isLastNode
+          ? <div css={style.blankNextLastLeaf.container}>
+              <div
+                css={style.blankNextLastLeaf.blankNext(isRootNode)}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                ref={nextRef}
+              >
+                <div
+                  css={style.blankNextLastLeaf.next(isDroppable.nextBlank)}
+                />
+              </div>
+              <div
+                css={style.blankNextLastLeaf.blankParent}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                ref={nextParentRef}
+              >
+                <div
+                  css={style.blankNextLastLeaf.parent(isDroppable.nextParent)}
+                />
+              </div>
+            </div>
+          : <div
+              css={style.blankNext(isDroppable.nextBlank)}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              ref={nextRef}
+            />
+        }
       </>
     );
   }
@@ -268,7 +302,7 @@ const TreeItem = ({
           </div>
         }
       </div>
-      {!hasGreatGrandchildren &&
+      {(!isRootNode && !isExpanded) &&
         <div
           css={style.blankNext(isDroppable.nextBlank)}
           onDragLeave={handleDragLeave}
@@ -288,7 +322,8 @@ const style = {
     paddingLeft: isRootNode ? undefined : '3rem'
   }),
   leafContent: (isDroppable: boolean) => css({
-    backgroundColor: isDroppable ? 'palegreen' : undefined
+    backgroundColor: isDroppable ? 'palegreen' : undefined,
+    marginBottom: '-2px'
   }),
   nodeContainer: (isRootNode: boolean) => css({
     paddingLeft: isRootNode ? undefined : '1.5rem'
@@ -296,7 +331,8 @@ const style = {
   nodeContent: (isDroppable: boolean) =>css({
     display: 'flex',
     gap: '.5rem',
-    backgroundColor: isDroppable ? 'palegreen' : undefined
+    backgroundColor: isDroppable ? 'palegreen' : undefined,
+    marginBottom: '-2px'
   }),
   toggle: css({
     all: 'unset',
@@ -317,11 +353,44 @@ const style = {
     }
   }),
   blankPrev: (isDroppable: boolean) => css({
-    height: '4px',
-    backgroundColor: isDroppable ? 'palegreen' : undefined
+    position: 'relative',
+    zIndex: '1',
+    height: '6px',
+    backgroundColor: isDroppable ? 'palegreen' : 'undefined',
+    marginBottom: '-2px'
   }),
   blankNext: (isDroppable: boolean) => css({
-    height: '4px',
-    backgroundColor: isDroppable ? 'palegreen' : undefined
-  })
+    position: 'relative',
+    zIndex: '1',
+    height: '6px',
+    backgroundColor: isDroppable ? 'palegreen' : 'undefined',
+    marginBottom: '-2px'
+  }),
+  blankNextLastLeaf: {
+    container: css({
+      position: 'relative',
+      zIndex: '1',
+      height: '6px',
+      marginLeft: '-1.5rem',
+      marginBottom: '-2px'
+    }),
+    blankNext: (isRootNode: boolean) =>  css({
+      height: '3px',
+      marginLeft: isRootNode ? undefined : '1.5rem'
+    }),
+    next: (isDroppable: boolean) => css({
+      backgroundColor: isDroppable ? 'palegreen' : 'undefined',
+      height: '6px',
+    }),
+    blankParent: css({
+      height: '3px'
+    }),
+    parent: (isDroppable: boolean) => css({
+      pointerEvents: 'none',
+      position: 'relative',
+      top: '-3px',
+      backgroundColor: isDroppable ? 'palegreen' : 'undefined',
+      height: '6px',
+    })
+  }
 };

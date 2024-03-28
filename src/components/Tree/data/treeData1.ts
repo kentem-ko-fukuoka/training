@@ -1,6 +1,4 @@
 import TreeNode from "../treeNode";
-import { LiaBuilding } from 'react-icons/lia';
-import { BiAtom } from "react-icons/bi";
 
 const nodes: TreeNode[] = [{
   id: '1',
