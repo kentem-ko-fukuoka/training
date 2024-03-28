@@ -1,8 +1,14 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { DragEvent, DragEventHandler, useRef, useState } from "react";
+import {
+  ChangeEventHandler,
+  DragEvent,
+  DragEventHandler,
+  useRef,
+  useState
+} from "react";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
-import { DragNode } from "./Tree";
+import { DragNode, EditInfo } from "./Tree";
 import TreeLabel from "./TreeLabel";
 import TreeNode from "./treeNode";
 import {
@@ -43,6 +49,8 @@ type Props = {
     previousNodeId: string | undefined,
     nextNodeId: string | undefined
   ) => void;
+  editInfo: EditInfo;
+  onEditText: ChangeEventHandler<HTMLInputElement>;
 };
 
 const TreeItem = ({
@@ -56,7 +64,9 @@ const TreeItem = ({
   nextNodeId,
   ancestorNodeIds,
   dragNode,
-  onDragStart
+  onDragStart,
+  editInfo,
+  onEditText
 }: Props) => {
 
   const isRootNode = ancestorNodeIds.length === 0;
@@ -149,8 +159,6 @@ const TreeItem = ({
 
     const dragOverArea = getDragOverArea(e);
 
-    console.log(dragOverArea)
-
     if (!dragOverArea || !isDroppable[dragOverArea]) {
       return;
     }
@@ -177,6 +185,8 @@ const TreeItem = ({
       [...ancestorNodeIds].splice(0, ancestorNodeIds.length - 1), parentNodeId);
   }
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   if (!node.childNodes) {
     return (
       <>
@@ -198,6 +208,7 @@ const TreeItem = ({
             ref={thisRef}
           >
             <TreeLabel
+              nodeId={node.id}
               iconType={node.label.iconType}
               text={node.label.text}
               isChecked={isChecked}
@@ -205,6 +216,8 @@ const TreeItem = ({
               onSelect={handleSelect}
               onToggleCheck={handleToggleCheck}
               onDragStart={handleDragStart}
+              editInfo={editInfo}
+              onEdit={onEditText}
             />
           </div>
         </div>
@@ -268,6 +281,7 @@ const TreeItem = ({
             {isExpanded ? <IoIosArrowDown /> : <IoIosArrowForward />}
           </button>
           <TreeLabel
+            nodeId={node.id}
             iconType={node.label.iconType}
             text={node.label.text}
             isChecked={isChecked}
@@ -275,6 +289,8 @@ const TreeItem = ({
             onSelect={handleSelect}
             onToggleCheck={handleToggleCheck}
             onDragStart={handleDragStart}
+            editInfo={editInfo}
+            onEdit={onEditText}
           />
         </div>
         {isExpanded &&
@@ -295,6 +311,8 @@ const TreeItem = ({
                   ancestorNodeIds={[...ancestorNodeIds, node.id]}
                   dragNode={dragNode}
                   onDragStart={onDragStart}
+                  editInfo={editInfo}
+                  onEditText={onEditText}
                   key={childNode.id}
                 />
               )
@@ -379,6 +397,7 @@ const style = {
       marginLeft: isRootNode ? undefined : '1.5rem'
     }),
     next: (isDroppable: boolean) => css({
+      pointerEvents: 'none',
       backgroundColor: isDroppable ? 'palegreen' : 'undefined',
       height: '6px',
     }),

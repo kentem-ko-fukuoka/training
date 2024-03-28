@@ -8,13 +8,9 @@ import { CheckState } from "./treeProps";
 
 const TreeView = () => {
 
-  const [selectedId, setSelectedId] = useState('');
+  const [selectedId, setSelectedId] = useState<string | undefined>();
 
   const handleSelect = (nodeId: string) => {
-    if (selectedId === nodeId) {
-      setSelectedId('');
-      return;
-    }
     setSelectedId(nodeId);
   };
 
@@ -27,6 +23,14 @@ const TreeView = () => {
     '1-2',
     '1-2-1',
     '1-3',
+    '2',
+    '2-1',
+    '2-1-1',
+    '2-1-2',
+    '2-1-3',
+    '2-2',
+    '2-2-1',
+    '2-3',
   ]);
 
   const handleToggleExpand = (nodeId: string) => {
@@ -157,8 +161,6 @@ const TreeView = () => {
     previousNodeId: string | undefined
   ): void => {
 
-    console.log(droppedNodeId, ancestorNodeIds, previousNodeId)
-
     const nodes = [...treeNodes];
 
     const extractedNode = extractNode(nodes, droppedNodeId);
@@ -180,7 +182,65 @@ const TreeView = () => {
     });
 
     setTreeNodes(nodes);
+  };
+
+  const getNode = (nodes: TreeNode[], nodeId: string): TreeNode | null => {
+
+    let matchedNode: TreeNode | null = null;
+
+    nodes.forEach((node) => {
+
+      if (!node.childNodes) {
+        return;
+      }
+
+      const index = node.childNodes.findIndex(v => v.id === nodeId);
+
+      if (index === -1) {
+        const matched = getNode(node.childNodes, nodeId);
+        matched && (matchedNode = matched);
+        return;
+      }
+
+      matchedNode = node.childNodes[index];
+    });
+
+    return matchedNode;
   }
+
+  const edit = (
+    nodes: TreeNode[],
+    selectedId: string,
+    text: string
+  ): TreeNode[] => {
+
+    nodes.forEach((node) => {
+
+      if (!node.childNodes) {
+        return;
+      }
+
+      const index = node.childNodes.findIndex(v => v.id === selectedId);
+
+      if (index === -1) {
+        edit(node.childNodes, selectedId, text);
+        return;
+      }
+
+      node.childNodes[index].label.text = text;
+    });
+
+    return nodes;
+  }
+
+  const handleEdit = (text: string) => {
+
+    if (!selectedId) {
+      return;
+    }
+
+    setTreeNodes(edit([...treeNodes], selectedId, text));
+  };
 
   return (
     <>
@@ -188,7 +248,12 @@ const TreeView = () => {
       <div>
         <Tree
           nodes={treeNodes}
-          selectableProps={{ nodeId: selectedId, onSelect: handleSelect }}
+          selectableProps={{
+            nodeId:
+            selectedId,
+            onSelect: handleSelect,
+            editableProps: { onEdit: handleEdit }
+          }}
           expandableProps={{
             nodeIds: expandedIds,
             onToggle: handleToggleExpand

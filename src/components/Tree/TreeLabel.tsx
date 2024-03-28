@@ -1,6 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
+import { ChangeEventHandler, useEffect, useRef } from "react";
 import { IconType } from "react-icons";
+import { EditInfo } from "./Tree";
 
 export type TreeLabelProps = {
   iconType?: IconType;
@@ -8,25 +10,37 @@ export type TreeLabelProps = {
 };
 
 type Props = {
+  nodeId: string;
   isChecked?: boolean;
   isSelected: boolean;
   onSelect: () => void;
   onToggleCheck?: () => void;
   onDragStart: () => void;
+  editInfo: EditInfo;
+  onEdit: ChangeEventHandler<HTMLInputElement>
 } & TreeLabelProps;
 
 const TreeLabel = ({
+  nodeId,
   iconType,
   text,
   isChecked,
   isSelected,
   onSelect,
   onToggleCheck,
-  onDragStart
+  onDragStart,
+  editInfo,
+  onEdit
 }: Props) => {
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.select();
+  }, [editInfo.id])
+
   return (
-    <div css={style.container}>
+    <div css={style.container(isSelected)} onClick={onSelect}>
       {typeof isChecked === 'boolean' &&
         <div
           css={style.areaCheckbox}
@@ -46,15 +60,24 @@ const TreeLabel = ({
         </div>
       }
       {iconType && iconType({ size: '1.5rem' })}
-      <span
-        css={style.label(isSelected)}
-        draggable={true}
-        onClick={onSelect}
-        onDragStart={onDragStart}
-        onDragOver={(e) => e.preventDefault()}
-      >
-        {text}
-      </span>
+      {editInfo.id === nodeId
+        ? <input
+            css={style.input}
+            type='text'
+            value={editInfo.text}
+            onClick={(e) => e.stopPropagation()}
+            onChange={onEdit}
+            ref={inputRef}
+          />
+        : <span
+            css={style.label}
+            draggable={true}
+            onDragStart={onDragStart}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            {text}
+          </span>
+      }
     </div>
   );
 };
@@ -62,9 +85,11 @@ const TreeLabel = ({
 export default TreeLabel;
 
 const style = {
-  container: css({
+  container: (isSelected: boolean) =>  css({
     display: 'flex',
-    gap: '.5rem'
+    gap: '.5rem',
+    flexGrow: '1',
+    backgroundColor: isSelected ? 'palegreen' : 'undefined'
   }),
   areaCheckbox: css({
     width: '1.5rem',
@@ -86,13 +111,17 @@ const style = {
       transform: 'rotate(-45deg)'
     }
   }),
-  label: (isSelected: boolean) => css({
+  input: css({
+    all: 'unset'
+  }),
+  label: css({
     userSelect: 'none',
-    backgroundColor: isSelected ? 'limegreen' : undefined,
     borderRadius: '.25rem',
+    minWidth: '1.5rem',
+    height: '1.5rem',
     ':hover': {
       cursor: 'pointer',
-      backgroundColor: isSelected ? undefined : 'palegreen'
+      backgroundColor: 'palegreen'
     }
   })
 };

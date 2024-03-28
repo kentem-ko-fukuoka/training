@@ -1,6 +1,7 @@
 export type SelectableProps = {
-  nodeId: string;
+  nodeId: string | undefined;
   onSelect: (nodeId: string) => void;
+  editableProps: EditableProps;
 };
 
 export type ExpandableProps = {
@@ -24,4 +25,8 @@ export type DroppableProps = {
     ancestorNodeIds: string[],
     previousNodeId: string | undefined
   ) => void;
+};
+
+type EditableProps = {
+  onEdit: (text: string) => void;
 };
