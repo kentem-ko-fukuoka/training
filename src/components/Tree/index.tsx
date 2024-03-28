@@ -8,7 +8,7 @@ import { CheckState } from "./treeProps";
 
 const TreeView = () => {
 
-  const [selectedId, setSelectedId] = useState<string | undefined>();
+  const [selectedId, setSelectedId] = useState<string | undefined>('1');
 
   const handleSelect = (nodeId: string) => {
     setSelectedId(nodeId);
@@ -17,19 +17,12 @@ const TreeView = () => {
   const [expandedIds, setExpandedIds] = useState<string[]>([
     '1',
     '1-1',
-    '1-1-1',
-    '1-1-2',
-    '1-1-3',
     '1-2',
     '1-2-1',
     '1-3',
     '2',
     '2-1',
-    '2-1-1',
-    '2-1-2',
-    '2-1-3',
     '2-2',
-    '2-2-1',
     '2-3',
   ]);
 

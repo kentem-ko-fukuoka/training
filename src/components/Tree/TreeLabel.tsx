@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { ChangeEventHandler, useEffect, useRef } from "react";
+import { ChangeEventHandler, KeyboardEventHandler, useEffect, useRef } from "react";
 import { IconType } from "react-icons";
 import { EditInfo } from "./Tree";
 
@@ -16,8 +16,10 @@ type Props = {
   onSelect: () => void;
   onToggleCheck?: () => void;
   onDragStart: () => void;
+  onClick: () => void;
   editInfo: EditInfo;
-  onEdit: ChangeEventHandler<HTMLInputElement>
+  onEdit: ChangeEventHandler<HTMLInputElement>;
+  onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 } & TreeLabelProps;
 
 const TreeLabel = ({
@@ -29,18 +31,30 @@ const TreeLabel = ({
   onSelect,
   onToggleCheck,
   onDragStart,
+  onClick,
   editInfo,
-  onEdit
+  onEdit,
+  onKeyDown
 }: Props) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.select();
-  }, [editInfo.id])
+  }, [editInfo.id]);
+
+  const handleClick = () => {
+
+    if (!isSelected) {
+      onSelect();
+      return;
+    }
+
+    onClick();
+  };
 
   return (
-    <div css={style.container(isSelected)} onClick={onSelect}>
+    <div css={style.container(isSelected)} onClick={handleClick}>
       {typeof isChecked === 'boolean' &&
         <div
           css={style.areaCheckbox}
@@ -67,6 +81,7 @@ const TreeLabel = ({
             value={editInfo.text}
             onClick={(e) => e.stopPropagation()}
             onChange={onEdit}
+            onKeyDown={onKeyDown}
             ref={inputRef}
           />
         : <span

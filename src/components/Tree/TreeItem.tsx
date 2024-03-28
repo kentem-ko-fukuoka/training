@@ -4,6 +4,7 @@ import {
   ChangeEventHandler,
   DragEvent,
   DragEventHandler,
+  KeyboardEventHandler,
   useRef,
   useState
 } from "react";
@@ -49,8 +50,10 @@ type Props = {
     previousNodeId: string | undefined,
     nextNodeId: string | undefined
   ) => void;
+  onClickLabel: () => void;
   editInfo: EditInfo;
   onEditText: ChangeEventHandler<HTMLInputElement>;
+  onKeyDownInInput: KeyboardEventHandler<HTMLInputElement>;
 };
 
 const TreeItem = ({
@@ -65,8 +68,10 @@ const TreeItem = ({
   ancestorNodeIds,
   dragNode,
   onDragStart,
+  onClickLabel,
   editInfo,
-  onEditText
+  onEditText,
+  onKeyDownInInput
 }: Props) => {
 
   const isRootNode = ancestorNodeIds.length === 0;
@@ -216,8 +221,10 @@ const TreeItem = ({
               onSelect={handleSelect}
               onToggleCheck={handleToggleCheck}
               onDragStart={handleDragStart}
+              onClick={onClickLabel}
               editInfo={editInfo}
               onEdit={onEditText}
+              onKeyDown={onKeyDownInInput}
             />
           </div>
         </div>
@@ -289,8 +296,10 @@ const TreeItem = ({
             onSelect={handleSelect}
             onToggleCheck={handleToggleCheck}
             onDragStart={handleDragStart}
+            onClick={onClickLabel}
             editInfo={editInfo}
             onEdit={onEditText}
+            onKeyDown={onKeyDownInInput}
           />
         </div>
         {isExpanded &&
@@ -311,8 +320,10 @@ const TreeItem = ({
                   ancestorNodeIds={[...ancestorNodeIds, node.id]}
                   dragNode={dragNode}
                   onDragStart={onDragStart}
+                  onClickLabel={onClickLabel}
                   editInfo={editInfo}
                   onEditText={onEditText}
+                  onKeyDownInInput={onKeyDownInInput}
                   key={childNode.id}
                 />
               )
