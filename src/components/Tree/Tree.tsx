@@ -41,7 +41,7 @@ export const EDIT_INFO_INITIAL = {
 } as const satisfies EditInfo;
 
 type Props = {
-  nodes: TreeNode | TreeNode[];
+  nodes: TreeNode[];
   selectableProps?: SelectableProps;
   expandableProps?: ExpandableProps;
   checkableProps?: CheckableProps;
@@ -55,10 +55,6 @@ const Tree = ({
   checkableProps,
   droppableProps
 }: Props) => {
-
-  if (!Array.isArray(nodes)) {
-    nodes = [nodes];
-  }
 
   const [dragNode, setDragNode] = useState<DragNode>({
     id: '',
@@ -101,10 +97,13 @@ const Tree = ({
       return;
     }
 
-    const treeNodes = Array.isArray(nodes) ? nodes : [nodes];
+    if (!selectableProps.editableProps) {
+      return;
+    }
+
     const selectedNodeId = selectableProps.nodeId;
 
-    const text = getText(treeNodes, selectedNodeId);
+    const text = getText(nodes, selectedNodeId);
     setEditInfo({ id: selectedNodeId, text });
     return;
   };
@@ -169,7 +168,6 @@ const Tree = ({
         return;
       }
 
-      const treeNodes = Array.isArray(nodes) ? nodes : [nodes];
       const selectedNodeId = selectableProps.nodeId;
 
       if (e.key === 'ArrowUp') {
@@ -196,7 +194,7 @@ const Tree = ({
 
       if (e.key === 'ArrowRight') {
 
-        if (!getNode(treeNodes, selectedNodeId)?.childNodes) {
+        if (!getNode(nodes, selectedNodeId)?.childNodes) {
           return;
         }
 
@@ -214,7 +212,7 @@ const Tree = ({
           return;
         }
 
-        const parentId = getParentNodeId(treeNodes, selectedNodeId);
+        const parentId = getParentNodeId(nodes, selectedNodeId);
         parentId && selectableProps.onSelect(parentId);
         return;
       }
@@ -224,7 +222,7 @@ const Tree = ({
       }
 
       if (editInfo.id === undefined && e.key === 'F2') {
-        const text = getText(treeNodes, selectedNodeId);
+        const text = getText(nodes, selectedNodeId);
         setEditInfo({ id: selectedNodeId, text });
         return;
       }

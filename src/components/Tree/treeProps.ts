@@ -1,17 +1,12 @@
 export type SelectableProps = {
   nodeId: string | undefined;
   onSelect: (nodeId: string) => void;
-  editableProps: EditableProps;
+  editableProps?: EditableProps;
 };
 
 export type ExpandableProps = {
   nodeIds: string[];
   onToggle: (nodeId: string) => void;
-};
-
-export type CheckState = {
-  nodeId: string;
-  checked: boolean;
 };
 
 export type CheckableProps = {
@@ -29,4 +24,9 @@ export type DroppableProps = {
 
 type EditableProps = {
   onEdit: (text: string) => void;
+};
+
+export type CheckState = {
+  nodeId: string;
+  checked: boolean;
 };
