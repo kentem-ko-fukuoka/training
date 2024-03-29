@@ -14,10 +14,10 @@ import {
   SelectableProps
 } from "./treeProps";
 import {
-  getNode,
   getOrderedNodeIds,
   getParentNodeId,
-  getText
+  getText,
+  hasChild
 } from "./treeUtil";
 
 export type DragNode = {
@@ -30,7 +30,7 @@ export type DragNode = {
 export type EditInfo = {
   id: string;
   text: string;
-}
+};
 
 type Props = {
   nodes: TreeNode[];
@@ -47,6 +47,15 @@ const Tree = ({
   checkableProps,
   droppableProps
 }: Props) => {
+
+  const editableProps = selectableProps?.editableProps;
+
+  const selectedNodeId = selectableProps?.nodeId;
+
+  const expandedNodeIds = expandableProps?.nodeIds;
+  const orderedNodeIds = getOrderedNodeIds(nodes, expandedNodeIds);
+
+  const [editInfo, setEditInfo] = useState<EditInfo | null>(null);
 
   const [dragNode, setDragNode] = useState<DragNode>({
     id: '',
@@ -69,30 +78,24 @@ const Tree = ({
     });
   };
 
-  const orderedNodeIds = getOrderedNodeIds(nodes, expandableProps?.nodeIds);
-
-  const [editInfo, setEditInfo] = useState<EditInfo | null>(null);
-
   const handleEdit: ChangeEventHandler<HTMLInputElement> = (e) => {
 
-    if (!selectableProps?.nodeId) {
+    if (!selectedNodeId) {
       return;
     }
 
-    setEditInfo({ id: selectableProps.nodeId, text: e.target.value });
+    setEditInfo({ id: selectedNodeId, text: e.target.value });
   };
 
   const handleClickLabel = () => {
 
-    if (!selectableProps || !selectableProps.nodeId) {
+    if (!selectedNodeId) {
       return;
     }
 
-    if (!selectableProps.editableProps) {
+    if (!editableProps) {
       return;
     }
-
-    const selectedNodeId = selectableProps.nodeId;
 
     const text = getText(nodes, selectedNodeId);
     setEditInfo({ id: selectedNodeId, text });
@@ -103,11 +106,11 @@ const Tree = ({
 
     e.stopPropagation();
 
-    if (
-      !selectableProps ||
-      !selectableProps.nodeId ||
-      !selectableProps.editableProps
-    ) {
+    if (!selectedNodeId) {
+      return;
+    }
+
+    if (!editableProps) {
       return;
     }
 
@@ -122,25 +125,24 @@ const Tree = ({
 
     if (e.key === 'Enter') {
 
-      selectableProps.editableProps.onEdit(editInfo.text);
+      editableProps.onEdit(editInfo.text);
       setEditInfo(null);
 
-      const selectedId = selectableProps.nodeId;
-      const selectedIndex = orderedNodeIds.findIndex(id => id === selectedId);
+      const index = orderedNodeIds.findIndex(id => id === selectedNodeId);
 
-      if (selectedIndex !== orderedNodeIds.length - 1) {
-        selectableProps.onSelect(orderedNodeIds[selectedIndex + 1]);
+      if (index !== orderedNodeIds.length - 1) {
+        selectableProps.onSelect(orderedNodeIds[index + 1]);
       }
     }
   };
 
   const handleClickOutOfInput = () => {
 
-    if (
-      !selectableProps ||
-      !selectableProps.nodeId ||
-      !selectableProps.editableProps
-    ) {
+    if (!selectedNodeId) {
+      return;
+    }
+
+    if (!editableProps) {
       return;
     }
 
@@ -148,7 +150,7 @@ const Tree = ({
       return;
     }
 
-    selectableProps.editableProps.onEdit(editInfo.text);
+    editableProps.onEdit(editInfo.text);
     setEditInfo(null);
   };
 
@@ -156,11 +158,9 @@ const Tree = ({
 
     const handleKeyDown = (e: KeyboardEvent) => {
 
-      if (!selectableProps || !selectableProps.nodeId) {
+      if (!selectedNodeId) {
         return;
       }
-
-      const selectedNodeId = selectableProps.nodeId;
 
       if (e.key === 'ArrowUp') {
 
@@ -186,11 +186,11 @@ const Tree = ({
 
       if (e.key === 'ArrowRight') {
 
-        if (!getNode(nodes, selectedNodeId)?.childNodes) {
+        if (!hasChild(nodes, selectedNodeId)) {
           return;
         }
 
-        if (!expandableProps?.nodeIds.includes(selectedNodeId)) {
+        if (!expandedNodeIds?.includes(selectedNodeId)) {
           expandableProps?.onToggle(selectedNodeId);
         }
 
@@ -199,7 +199,7 @@ const Tree = ({
 
       if (e.key === 'ArrowLeft') {
 
-        if (expandableProps?.nodeIds.includes(selectedNodeId)) {
+        if (expandedNodeIds?.includes(selectedNodeId)) {
           expandableProps?.onToggle(selectedNodeId);
           return;
         }
@@ -209,7 +209,7 @@ const Tree = ({
         return;
       }
 
-      if (!selectableProps.editableProps) {
+      if (!editableProps) {
         return;
       }
 
@@ -225,7 +225,7 @@ const Tree = ({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [nodes, selectableProps?.nodeId, orderedNodeIds]);
+  }, [nodes, selectedNodeId, editableProps, orderedNodeIds]);
 
   const treeRef = useRef<HTMLDivElement>(null);
 

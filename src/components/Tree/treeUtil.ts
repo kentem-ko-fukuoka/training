@@ -1,16 +1,17 @@
 import TreeNode from "./treeNode";
 
-export const getNode = (nodes: TreeNode[], nodeId: string): TreeNode | undefined => {
+const getNode = (nodes: TreeNode[], nodeId: string): TreeNode | null => {
 
-  let matchedNode: TreeNode | undefined = undefined;
+  let matchedNode: TreeNode | null = null;
 
   nodes.forEach((node) => {
 
-    if (node.id === nodeId) {
-      matchedNode = node;
+    if (matchedNode) {
+      return;
     }
 
-    if (matchedNode) {
+    if (node.id === nodeId) {
+      matchedNode = node;
       return;
     }
 
@@ -21,6 +22,7 @@ export const getNode = (nodes: TreeNode[], nodeId: string): TreeNode | undefined
     const matched = node.childNodes.find(childNode => childNode.id === nodeId);
 
     if (!matched) {
+
       const cMatchedNode = getNode(node.childNodes, nodeId);
 
       if (cMatchedNode) {
@@ -34,6 +36,11 @@ export const getNode = (nodes: TreeNode[], nodeId: string): TreeNode | undefined
   });
 
   return matchedNode;
+}
+
+export const hasChild = (nodes: TreeNode[], nodeId: string): boolean => {
+  const node = getNode(nodes, nodeId);
+  return !!node?.childNodes;
 }
 
 export const getText = (nodes: TreeNode[], nodeId: string): string => {

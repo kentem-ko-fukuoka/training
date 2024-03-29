@@ -1,6 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { ChangeEventHandler, KeyboardEventHandler, useEffect, useRef } from "react";
+import {
+  ChangeEventHandler,
+  KeyboardEventHandler,
+  useEffect,
+  useRef
+} from "react";
 import { IconType } from "react-icons";
 import { EditInfo } from "./Tree";
 
