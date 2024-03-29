@@ -26,6 +26,7 @@
     "eject": "react-scripts eject",
     "format": "npx prettier --write ."
   },
+  "homepage": "https://kentem-ko-fukuoka.github.io/training/",
   "eslintConfig": {
     "extends": [
       "react-app",
