@@ -125,7 +125,7 @@ const TreeItem = ({
     e.preventDefault();
 
     if (
-      dragNode.id === node.id ||
+      (dragNode.id === node.id && e.currentTarget !== nextParentRef.current) ||
       ancestorNodeIds.includes(dragNode.id) ||
       (
         e.currentTarget === nextRef.current &&
@@ -133,8 +133,12 @@ const TreeItem = ({
       ) ||
       (
         e.currentTarget === thisRef.current &&
-        dragNode.isLastNode &&
+        dragNode.nextId === undefined &&
         dragNode.parentId === node.id
+      ) ||
+      (
+        e.currentTarget === nextParentRef.current &&
+        dragNode.previousId === parentNodeId
       )
     ) {
       return;

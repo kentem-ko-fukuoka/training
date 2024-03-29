@@ -25,9 +25,6 @@ export type DragNode = {
   parentId: string | undefined;
   previousId: string | undefined;
   nextId: string | undefined;
-  isRootNode: boolean;
-  isFirstNode: boolean;
-  isLastNode: boolean;
 };
 
 export type EditInfo = {
@@ -60,10 +57,7 @@ const Tree = ({
     id: '',
     parentId: '',
     previousId: '',
-    nextId: '',
-    isRootNode: false,
-    isFirstNode: false,
-    isLastNode: false
+    nextId: ''
   });
 
   const handleDragStart = (
@@ -77,9 +71,6 @@ const Tree = ({
       parentId,
       previousId,
       nextId,
-      isRootNode: parentId === undefined,
-      isFirstNode: previousId === undefined,
-      isLastNode: nextId === undefined
     });
   };
 
