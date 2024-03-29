@@ -127,7 +127,8 @@ const style = {
     }
   }),
   input: css({
-    all: 'unset'
+    all: 'unset',
+    height: '1.5rem'
   }),
   label: css({
     userSelect: 'none',
