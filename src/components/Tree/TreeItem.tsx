@@ -145,7 +145,7 @@ const TreeItem = ({
     if (dragOverArea) {
       setIsDroppable(state => ({ ...state, [dragOverArea]: true }));
     }
-  }
+  };
 
   const handleDragLeave: DragEventHandler<HTMLDivElement> = (e) => {
 
@@ -188,9 +188,7 @@ const TreeItem = ({
 
     droppableProps.onDrop(dragNode.id,
       [...ancestorNodeIds].splice(0, ancestorNodeIds.length - 1), parentNodeId);
-  }
-
-  const inputRef = useRef<HTMLInputElement>(null);
+  };
 
   if (!node.childNodes) {
     return (
