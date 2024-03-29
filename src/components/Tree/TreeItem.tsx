@@ -51,7 +51,7 @@ type Props = {
     nextNodeId: string | undefined
   ) => void;
   onClickLabel: () => void;
-  editInfo: EditInfo;
+  editInfo: EditInfo | null;
   onEditText: ChangeEventHandler<HTMLInputElement>;
   onKeyDownInInput: KeyboardEventHandler<HTMLInputElement>;
 };

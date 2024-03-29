@@ -17,7 +17,7 @@ type Props = {
   onToggleCheck?: () => void;
   onDragStart: () => void;
   onClick: () => void;
-  editInfo: EditInfo;
+  editInfo: EditInfo | null;
   onEdit: ChangeEventHandler<HTMLInputElement>;
   onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 } & TreeLabelProps;
@@ -41,7 +41,7 @@ const TreeLabel = ({
 
   useEffect(() => {
     inputRef.current?.select();
-  }, [editInfo.id]);
+  }, [editInfo?.id]);
 
   const handleClick = () => {
 
@@ -74,7 +74,7 @@ const TreeLabel = ({
         </div>
       }
       {iconType && iconType({ size: '1.5rem' })}
-      {editInfo.id === nodeId
+      {editInfo?.id === nodeId
         ? <input
             css={style.input}
             type='text'

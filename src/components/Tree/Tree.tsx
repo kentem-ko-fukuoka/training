@@ -28,14 +28,9 @@ export type DragNode = {
 };
 
 export type EditInfo = {
-  id: string | undefined;
+  id: string;
   text: string;
 }
-
-export const EDIT_INFO_INITIAL = {
-  id: undefined,
-  text: ''
-} as const satisfies EditInfo;
 
 type Props = {
   nodes: TreeNode[];
@@ -76,10 +71,15 @@ const Tree = ({
 
   const orderedNodeIds = getOrderedNodeIds(nodes, expandableProps?.nodeIds);
 
-  const [editInfo, setEditInfo] = useState<EditInfo>(EDIT_INFO_INITIAL);
+  const [editInfo, setEditInfo] = useState<EditInfo | null>(null);
 
   const handleEdit: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setEditInfo(prev => ({ ...prev, text: e.target.value }));
+
+    if (!selectableProps?.nodeId) {
+      return;
+    }
+
+    setEditInfo({ id: selectableProps.nodeId, text: e.target.value });
   };
 
   const handleClickLabel = () => {
@@ -111,24 +111,25 @@ const Tree = ({
       return;
     }
 
-    if (editInfo.id !== undefined) {
+    if (!editInfo) {
+      return;
+    }
 
-      if (e.key === 'Escape') {
-        setEditInfo(EDIT_INFO_INITIAL);
-        return;
-      }
+    if (e.key === 'Escape') {
+      setEditInfo(null);
+      return;
+    }
 
-      if (e.key === 'Enter') {
+    if (e.key === 'Enter') {
 
-        selectableProps.editableProps.onEdit(editInfo.text);
-        setEditInfo(EDIT_INFO_INITIAL);
+      selectableProps.editableProps.onEdit(editInfo.text);
+      setEditInfo(null);
 
-        const selectedId = selectableProps.nodeId;
-        const selectedIndex = orderedNodeIds.findIndex(id => id === selectedId);
+      const selectedId = selectableProps.nodeId;
+      const selectedIndex = orderedNodeIds.findIndex(id => id === selectedId);
 
-        if (selectedIndex !== orderedNodeIds.length - 1) {
-          selectableProps.onSelect(orderedNodeIds[selectedIndex + 1]);
-        }
+      if (selectedIndex !== orderedNodeIds.length - 1) {
+        selectableProps.onSelect(orderedNodeIds[selectedIndex + 1]);
       }
     }
   };
@@ -143,12 +144,12 @@ const Tree = ({
       return;
     }
 
-    if (!editInfo.id) {
+    if (!editInfo) {
       return;
     }
 
     selectableProps.editableProps.onEdit(editInfo.text);
-    setEditInfo(EDIT_INFO_INITIAL);
+    setEditInfo(null);
   };
 
   useEffect(() => {
@@ -212,7 +213,7 @@ const Tree = ({
         return;
       }
 
-      if (editInfo.id === undefined && e.key === 'F2') {
+      if (e.key === 'F2') {
         const text = getText(nodes, selectedNodeId);
         setEditInfo({ id: selectedNodeId, text });
         return;
@@ -224,13 +225,7 @@ const Tree = ({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [
-    nodes,
-    selectableProps?.nodeId,
-    editInfo.id,
-    editInfo.text,
-    orderedNodeIds
-  ]);
+  }, [nodes, selectableProps?.nodeId, orderedNodeIds]);
 
   const treeRef = useRef<HTMLDivElement>(null);
 
@@ -247,7 +242,7 @@ const Tree = ({
     return (() => {
       document.removeEventListener('mousedown', handleClickOutsideTree);
     });
-  }, [editInfo.id, editInfo.text]);
+  }, [editInfo?.id, editInfo?.text]);
 
   return (
     <div role='list' onClick={handleClickOutOfInput} ref={treeRef}>
